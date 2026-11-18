@@ -113,7 +113,6 @@ function GalleryMedia({
       {!imageLoaded && (
         <div className="gallery-art-placeholder" aria-hidden="true">
           <Camera size={large ? 25 : 20} />
-          <span>Slot dokumentasi<br />foto belum ditambahkan</span>
         </div>
       )}
       <span className="gallery-art-number">{String(number).padStart(2, "0")}</span>
@@ -329,15 +328,8 @@ export function WelcomePage({ onOpenDashboard, onOpenTeam }: WelcomePageProps) {
             <span className="welcome-section-kicker">CERITA KEBIASAAN BAIK</span>
             <h2>Galeri dokumentasi.</h2>
           </div>
-          <p>
-            Kumpulan dokumentasi lintas kebiasaan. Foto dan tautan kegiatan
-            dapat ditambahkan dari satu file data.
-          </p>
+          <p>Potret kegiatan warga SMAVO yang mencerminkan pembiasaan 7 KAIH.</p>
         </div>
-        <p className="gallery-collection-note">
-          {galleryItems.length} slot dokumentasi tersedia. Slot tanpa foto akan
-          menampilkan placeholder sampai materi kegiatan ditambahkan.
-        </p>
         <div className="welcome-gallery-grid">
           {galleryItems.map((item, index) => (
             <article className={`gallery-card ${item.sceneClass}`} key={item.id}>
@@ -353,16 +345,12 @@ export function WelcomePage({ onOpenDashboard, onOpenTeam }: WelcomePageProps) {
                   <span>{item.category}</span>
                   <h3>{item.title}</h3>
                   <p>{item.caption}</p>
-                  <small>{item.period}</small>
+                  {item.period && <small>{item.period}</small>}
                 </div>
               </button>
             </article>
           ))}
         </div>
-        <p className="gallery-note">
-          Gunakan foto yang telah mendapat izin dan hindari menampilkan data
-          pribadi siswa.
-        </p>
       </section>
 
       <dialog
@@ -398,11 +386,13 @@ export function WelcomePage({ onOpenDashboard, onOpenTeam }: WelcomePageProps) {
                 {selectedGalleryItem.category}
               </span>
               <h2 id="gallery-dialog-title">{selectedGalleryItem.title}</h2>
-              <span className="gallery-dialog-period">
-                {selectedGalleryItem.period}
-              </span>
+              {selectedGalleryItem.period && (
+                <span className="gallery-dialog-period">
+                  {selectedGalleryItem.period}
+                </span>
+              )}
               <p>{selectedGalleryItem.caption}</p>
-              {selectedGalleryItem.documentationUrl ? (
+              {selectedGalleryItem.documentationUrl && (
                 <a
                   className="gallery-documentation-link"
                   href={selectedGalleryItem.documentationUrl}
@@ -411,11 +401,6 @@ export function WelcomePage({ onOpenDashboard, onOpenTeam }: WelcomePageProps) {
                 >
                   Buka dokumentasi lengkap <ExternalLink size={14} />
                 </a>
-              ) : (
-                <p className="gallery-dialog-hint">
-                  Tautan belum ditambahkan. Isi field{" "}
-                  <code>documentationUrl</code> pada data galeri.
-                </p>
               )}
             </div>
           </div>
