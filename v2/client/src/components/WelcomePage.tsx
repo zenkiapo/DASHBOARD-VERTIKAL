@@ -3,15 +3,20 @@ import {
   ArrowDown,
   ArrowRight,
   BookOpen,
+  Camera,
   CalendarDays,
   ChartNoAxesCombined,
   ClipboardList,
+  ExternalLink,
   Heart,
   Moon,
   Sunrise,
   Utensils,
   Users,
+  X,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { galleryItems, type GalleryItem } from "../data/galleryItems";
 
 interface WelcomePageProps {
   onOpenDashboard: () => void;
@@ -19,48 +24,111 @@ interface WelcomePageProps {
 }
 
 const habits = [
-  { title: "Bangun Pagi", icon: Sunrise, note: "Memulai hari dengan disiplin" },
-  { title: "Beribadah", icon: Heart, note: "Membangun karakter dan spiritualitas" },
-  { title: "Berolahraga", icon: Activity, note: "Menjaga tubuh tetap sehat dan aktif" },
-  { title: "Makan Sehat dan Bergizi", icon: Utensils, note: "Memilih asupan yang seimbang" },
-  { title: "Gemar Belajar", icon: BookOpen, note: "Menumbuhkan rasa ingin tahu" },
-  { title: "Bermasyarakat", icon: Users, note: "Peduli dan berkontribusi bagi sesama" },
-  { title: "Tidur Cepat", icon: Moon, note: "Memberi waktu cukup untuk beristirahat" },
+  {
+    title: "Bangun Pagi",
+    icon: Sunrise,
+    note: "Memulai hari dengan disiplin dan persiapan yang lebih tenang.",
+    detail:
+      "Rutinitas pagi yang konsisten membantu siswa menyiapkan diri untuk belajar, datang tepat waktu, dan mengikuti kegiatan sekolah dengan lebih siap.",
+  },
+  {
+    title: "Beribadah",
+    icon: Heart,
+    note: "Menumbuhkan karakter, rasa syukur, dan keteguhan nilai.",
+    detail:
+      "Pembiasaan ibadah dijalankan sesuai keyakinan masing-masing serta dengan sikap saling menghormati di lingkungan SMAVO yang beragam.",
+  },
+  {
+    title: "Berolahraga",
+    icon: Activity,
+    note: "Menjaga tubuh tetap aktif dan memberi ruang untuk bergerak.",
+    detail:
+      "Aktivitas fisik sederhana dan teratur dapat menjadi bagian dari keseharian siswa, baik melalui olahraga bersama maupun jeda aktif.",
+  },
+  {
+    title: "Makan Sehat dan Bergizi",
+    icon: Utensils,
+    note: "Mengenali pilihan pangan seimbang dan kebiasaan makan sehat.",
+    detail:
+      "Edukasi gizi dan pilihan makanan yang beragam mendukung siswa membangun perhatian terhadap asupan, hidrasi, dan kesejahteraan diri.",
+  },
+  {
+    title: "Gemar Belajar",
+    icon: BookOpen,
+    note: "Menumbuhkan rasa ingin tahu dan konsistensi belajar.",
+    detail:
+      "Membaca, bertanya, berdiskusi, dan merefleksikan pelajaran memberi siswa cara aktif untuk mengembangkan pengetahuan di dalam maupun luar kelas.",
+  },
+  {
+    title: "Bermasyarakat",
+    icon: Users,
+    note: "Belajar peduli, bekerja sama, dan berkontribusi bagi sesama.",
+    detail:
+      "Kegiatan kolaboratif, kepedulian terhadap lingkungan, dan gotong royong menguatkan rasa tanggung jawab sebagai bagian dari komunitas sekolah.",
+  },
+  {
+    title: "Tidur Cepat",
+    icon: Moon,
+    note: "Menjaga waktu istirahat dan mengelola penggunaan gawai.",
+    detail:
+      "Rutinitas malam yang teratur, jeda dari layar sebelum tidur, dan menyimpan gawai saat beristirahat membantu siswa membangun kebiasaan tidur yang lebih sehat.",
+  },
 ];
 
-// Foto sekolah berizin menggunakan nama file lokal; gradien tetap menjadi fallback.
-const gallery = [
-  {
-    title: "Awali hari dengan semangat",
-    caption: "Kebiasaan pagi dan kesiapan belajar",
-    className: "scene-morning",
-    img: "/gallery/scene-morning.jpg",
-    tag: "DISIPLIN DIRI",
-  },
-  {
-    title: "Aktif bergerak bersama",
-    caption: "Olahraga untuk tubuh yang bugar",
-    className: "scene-sport",
-    img: "/gallery/scene-sport.jpg",
-    tag: "HIDUP SEHAT",
-  },
-  {
-    title: "Tumbuh lewat pembelajaran",
-    caption: "Belajar, membaca, dan bereksplorasi",
-    className: "scene-study",
-    img: "/gallery/scene-study.jpg",
-    tag: "GEMAR BELAJAR",
-  },
-  {
-    title: "Peduli di lingkungan sekitar",
-    caption: "Membangun kebersamaan dan kepedulian",
-    className: "scene-community",
-    img: "/gallery/scene-community.jpg",
-    tag: "BERMASYARAKAT",
-  },
-];
+function GalleryMedia({
+  item,
+  number,
+  large = false,
+}: {
+  item: GalleryItem;
+  number: number;
+  large?: boolean;
+}) {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
+
+  return (
+    <div className={`gallery-art${large ? " gallery-art-large" : ""}`}>
+      <span className="gallery-art-orb" aria-hidden="true" />
+      <span className="gallery-art-shape shape-one" aria-hidden="true" />
+      <span className="gallery-art-shape shape-two" aria-hidden="true" />
+      {item.imageUrl && !imageFailed && (
+        <img
+          className={imageLoaded ? "is-loaded" : ""}
+          src={item.imageUrl}
+          alt={item.title}
+          loading="lazy"
+          decoding="async"
+          onLoad={() => setImageLoaded(true)}
+          onError={() => {
+            setImageLoaded(false);
+            setImageFailed(true);
+          }}
+        />
+      )}
+      {!imageLoaded && (
+        <div className="gallery-art-placeholder" aria-hidden="true">
+          <Camera size={large ? 25 : 20} />
+          <span>Slot dokumentasi<br />foto belum ditambahkan</span>
+        </div>
+      )}
+      <span className="gallery-art-number">{String(number).padStart(2, "0")}</span>
+    </div>
+  );
+}
 
 export function WelcomePage({ onOpenDashboard, onOpenTeam }: WelcomePageProps) {
+  const [selectedGalleryItem, setSelectedGalleryItem] =
+    useState<GalleryItem | null>(null);
+  const galleryDialogRef = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const dialog = galleryDialogRef.current;
+    if (selectedGalleryItem && dialog && !dialog.open) dialog.showModal();
+  }, [selectedGalleryItem]);
+
+  const closeGalleryDialog = () => galleryDialogRef.current?.close();
+
   return (
     <main className="welcome-page">
       <header className="welcome-nav">
@@ -143,8 +211,9 @@ export function WelcomePage({ onOpenDashboard, onOpenTeam }: WelcomePageProps) {
         <p>
           Di SMAN 2 Cibinong, 7 KAIH dipantau sebagai bagian dari VERTIKAL SMA
           2026. Jawaban atas 35 butir pernyataan diolah secara agregat dan anonim
-          untuk membaca perkembangan kebiasaan serta membantu sekolah menentukan
-          tindak lanjut.
+          untuk membaca pola kebiasaan siswa kelas X, XI, dan XII. Pemantauan
+          berkala membantu sekolah melihat area yang perlu diperkuat tanpa
+          menjadikan skor sebagai label bagi siswa.
         </p>
       </section>
 
@@ -203,17 +272,50 @@ export function WelcomePage({ onOpenDashboard, onOpenTeam }: WelcomePageProps) {
             <span className="welcome-section-kicker">DARI PAGI HINGGA MALAM</span>
             <h2>7 kebiasaan, satu tujuan.</h2>
           </div>
-          <p>Rutinitas yang saling melengkapi untuk mendukung tumbuh kembang siswa.</p>
+          <p>
+            Tujuh rutinitas saling melengkapi dalam mendukung kesiapan belajar,
+            kesehatan, karakter, dan kepedulian siswa.
+          </p>
         </div>
         <div className="welcome-habit-grid">
-          {habits.map(({ title, icon: Icon, note }, index) => (
+          {habits.map(({ title, icon: Icon, note, detail }, index) => (
             <article className="welcome-habit-card" key={title}>
               <span className="habit-number">{String(index + 1).padStart(2, "0")}</span>
               <span className="habit-icon"><Icon size={20} /></span>
               <h3>{title}</h3>
               <p>{note}</p>
+              <p className="habit-detail">{detail}</p>
             </article>
           ))}
+        </div>
+        <div className="habit-context-grid">
+          <article className="habit-context-card">
+            <span className="welcome-section-kicker">URGENSI</span>
+            <h3>Kebiasaan kecil membentuk kesiapan sehari-hari.</h3>
+            <p>
+              7 KAIH menghubungkan rutinitas dari pagi hingga malam. Di SMAVO,
+              pembiasaan ini menjadi ajakan yang konsisten bagi siswa, keluarga,
+              dan sekolah untuk saling mendukung tumbuh kembang yang sehat.
+            </p>
+          </article>
+          <article className="habit-context-card">
+            <span className="welcome-section-kicker">MONITORING</span>
+            <h3>Empat checkpoint memberi konteks perubahan.</h3>
+            <p>
+              Sebanyak 35 butir, lima untuk setiap kebiasaan, dicatat dengan
+              skala Likert 1–4 pada empat pengukuran selama dua pekan. Ringkasan
+              dapat dibaca menurut jenjang, jenis kelamin, dan periode.
+            </p>
+          </article>
+          <article className="habit-context-card">
+            <span className="welcome-section-kicker">VERTIKAL SMA 2026</span>
+            <h3>Data menjadi bahan refleksi dan tindak lanjut.</h3>
+            <p>
+              Dashboard membantu warga sekolah mengenali kebiasaan yang sudah
+              kuat dan area prioritas, lalu merencanakan dukungan yang relevan.
+              Angka dibaca sebagai gambaran agregat, bukan penilaian individu.
+            </p>
+          </article>
         </div>
       </section>
 
@@ -221,39 +323,100 @@ export function WelcomePage({ onOpenDashboard, onOpenTeam }: WelcomePageProps) {
         <div className="welcome-section-heading">
           <div>
             <span className="welcome-section-kicker">CERITA KEBIASAAN BAIK</span>
-            <h2>Galeri kegiatan.</h2>
+            <h2>Galeri dokumentasi.</h2>
           </div>
-          <p>Ruang untuk menampilkan momen kebiasaan baik warga SMAN 2 Cibinong.</p>
+          <p>
+            Kumpulan dokumentasi lintas kebiasaan. Foto dan tautan kegiatan
+            dapat ditambahkan dari satu file data.
+          </p>
         </div>
+        <p className="gallery-collection-note">
+          {galleryItems.length} slot dokumentasi tersedia. Slot tanpa foto akan
+          menampilkan placeholder sampai materi kegiatan ditambahkan.
+        </p>
         <div className="welcome-gallery-grid">
-          {gallery.map(({ title, caption, className, img, tag }, index) => (
-            <article className={`gallery-card ${className}`} key={title}>
-              <div className="gallery-art">
-                <span className="gallery-art-orb" />
-                <span className="gallery-art-shape shape-one" />
-                <span className="gallery-art-shape shape-two" />
-                <img
-                  src={img}
-                  alt={title}
-                  loading="lazy"
-                  onError={(event) => {
-                    event.currentTarget.style.display = "none";
-                  }}
-                />
-                <span className="gallery-art-number">0{index + 1}</span>
-              </div>
-              <div className="gallery-caption">
-                <span>{tag}</span>
-                <h3>{title}</h3>
-                <p>{caption}</p>
-              </div>
+          {galleryItems.map((item, index) => (
+            <article className={`gallery-card ${item.sceneClass}`} key={item.id}>
+              <button
+                className="gallery-card-trigger"
+                type="button"
+                aria-haspopup="dialog"
+                aria-label={`Buka dokumentasi ${item.title}, kategori ${item.category}`}
+                onClick={() => setSelectedGalleryItem(item)}
+              >
+                <GalleryMedia item={item} number={index + 1} />
+                <div className="gallery-caption">
+                  <span>{item.category}</span>
+                  <h3>{item.title}</h3>
+                  <p>{item.caption}</p>
+                  <small>{item.period}</small>
+                </div>
+              </button>
             </article>
           ))}
         </div>
         <p className="gallery-note">
-          Momen kebiasaan baik yang tumbuh bersama warga SMAN 2 Cibinong.
+          Gunakan foto yang telah mendapat izin dan hindari menampilkan data
+          pribadi siswa.
         </p>
       </section>
+
+      <dialog
+        className="gallery-dialog"
+        ref={galleryDialogRef}
+        aria-labelledby="gallery-dialog-title"
+        onClose={() => setSelectedGalleryItem(null)}
+        onClick={(event) => {
+          if (event.target === galleryDialogRef.current) closeGalleryDialog();
+        }}
+      >
+        {selectedGalleryItem && (
+          <div className="gallery-dialog-content">
+            <button
+              className="gallery-dialog-close"
+              type="button"
+              aria-label="Tutup dokumentasi"
+              onClick={closeGalleryDialog}
+            >
+              <X size={18} />
+            </button>
+            <div className={`gallery-dialog-media ${selectedGalleryItem.sceneClass}`}>
+              <GalleryMedia
+                item={selectedGalleryItem}
+                number={galleryItems.findIndex(
+                  (item) => item.id === selectedGalleryItem.id,
+                ) + 1}
+                large
+              />
+            </div>
+            <div className="gallery-dialog-copy">
+              <span className="welcome-section-kicker">
+                {selectedGalleryItem.category}
+              </span>
+              <h2 id="gallery-dialog-title">{selectedGalleryItem.title}</h2>
+              <span className="gallery-dialog-period">
+                {selectedGalleryItem.period}
+              </span>
+              <p>{selectedGalleryItem.caption}</p>
+              {selectedGalleryItem.documentationUrl ? (
+                <a
+                  className="gallery-documentation-link"
+                  href={selectedGalleryItem.documentationUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Buka dokumentasi lengkap <ExternalLink size={14} />
+                </a>
+              ) : (
+                <p className="gallery-dialog-hint">
+                  Tautan belum ditambahkan. Isi field{" "}
+                  <code>documentationUrl</code> pada data galeri.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      </dialog>
 
       <section className="welcome-close">
         <span className="welcome-section-kicker">LANGKAH BERIKUTNYA</span>
