@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { getAllowedOrigins } from "./env.js";
+import { getAllowedOrigins, getUpstashRedisConfig } from "./env.js";
 
 test("CORS allowlist accepts the exact Vercel and local development origins", () => {
   const previousOrigins = process.env.CLIENT_ORIGINS;
@@ -35,5 +35,31 @@ test("production CORS origins must use HTTPS", () => {
     else process.env.CLIENT_ORIGINS = previousOrigins;
     if (previousNodeEnv === undefined) delete process.env.NODE_ENV;
     else process.env.NODE_ENV = previousNodeEnv;
+  }
+});
+
+test("Upstash Redis config requires a secure URL and a REST token", () => {
+  const previousUrl = process.env.UPSTASH_REDIS_REST_URL;
+  const previousToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+  process.env.UPSTASH_REDIS_REST_URL = "https://example.upstash.io";
+  process.env.UPSTASH_REDIS_REST_TOKEN = "test-token";
+
+  try {
+    assert.deepEqual(getUpstashRedisConfig(), {
+      url: "https://example.upstash.io",
+      token: "test-token",
+    });
+
+    process.env.UPSTASH_REDIS_REST_URL = "http://example.upstash.io";
+    assert.throws(() => getUpstashRedisConfig(), /HTTPS/);
+
+    process.env.UPSTASH_REDIS_REST_URL = "https://example.upstash.io";
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    assert.throws(() => getUpstashRedisConfig(), /UPSTASH_REDIS_REST_URL/);
+  } finally {
+    if (previousUrl === undefined) delete process.env.UPSTASH_REDIS_REST_URL;
+    else process.env.UPSTASH_REDIS_REST_URL = previousUrl;
+    if (previousToken === undefined) delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    else process.env.UPSTASH_REDIS_REST_TOKEN = previousToken;
   }
 });

@@ -85,8 +85,9 @@ membuat, mengedit, dan menghapus catatan; GURU_BK/ADMIN mengelola status dan
 catatan pendampingan; WALI_KELAS hanya melihat catatan sesuai lingkup kelas
 binaan. Aturan akses kelas dan catatan siswa juga diberlakukan backend.
 
-Sebelum membuka panel, siapkan PostgreSQL dan Redis dari folder `server`, lalu
-salin konfigurasi `.env.example` ke `.env`:
+Sebelum membuka panel, siapkan PostgreSQL dari folder `server` dan konfigurasi
+Upstash Redis pada `.env` server, lalu salin konfigurasi `.env.example` ke
+`.env`:
 
 ```powershell
 docker compose up -d
@@ -95,8 +96,8 @@ npm run db:migrate
 npm run db:seed
 ```
 
-Autentikasi memakai cookie sesi `HttpOnly` yang disimpan di Redis; PostgreSQL
-menyimpan akun dan catatan kebijakan. Data SQLite lama (jika ada) tidak
+Autentikasi memakai cookie sesi `HttpOnly` yang disimpan di Upstash Redis;
+PostgreSQL menyimpan akun dan catatan kebijakan. Data SQLite lama (jika ada) tidak
 diimpor otomatis dan tetap disimpan sebagai arsip lokal.
 
 Halaman **Tim Pengembang** dibuka dari tombol pengguna di header Welcome Page.

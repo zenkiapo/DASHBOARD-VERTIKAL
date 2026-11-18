@@ -1,23 +1,16 @@
-import { createClient } from "redis";
-import { getRedisUrl } from "../config/env.js";
+import { Redis } from "@upstash/redis";
+import { getUpstashRedisConfig } from "../config/env.js";
 
-let client: ReturnType<typeof createClient> | undefined;
+let client: Redis | undefined;
 
-export function getRedisClient(): ReturnType<typeof createClient> {
+export function getRedisClient(): Redis {
   if (!client) {
-    client = createClient({ url: getRedisUrl() });
-    client.on("error", (error: Error) => {
-      console.error("[redis] Connection error", error);
-    });
+    const { url, token } = getUpstashRedisConfig();
+    client = new Redis({ url, token });
   }
   return client;
 }
 
 export async function connectRedis(): Promise<void> {
-  const redis = getRedisClient();
-  if (!redis.isOpen) await redis.connect();
-}
-
-export async function closeRedis(): Promise<void> {
-  if (client?.isOpen) await client.quit();
+  await getRedisClient().ping();
 }

@@ -1,18 +1,26 @@
-export function getRedisUrl(): string {
-  const value = process.env.REDIS_URL?.trim();
-  if (!value) {
-    throw new Error("REDIS_URL wajib diisi untuk penyimpanan sesi.");
+export interface UpstashRedisConfig {
+  url: string;
+  token: string;
+}
+
+export function getUpstashRedisConfig(): UpstashRedisConfig {
+  const urlValue = process.env.UPSTASH_REDIS_REST_URL?.trim();
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
+  if (!urlValue || !token) {
+    throw new Error(
+      "UPSTASH_REDIS_REST_URL dan UPSTASH_REDIS_REST_TOKEN wajib diisi untuk penyimpanan sesi.",
+    );
   }
   let url: URL;
   try {
-    url = new URL(value);
+    url = new URL(urlValue);
   } catch {
-    throw new Error("REDIS_URL harus berupa URL Redis yang valid.");
+    throw new Error("UPSTASH_REDIS_REST_URL harus berupa URL HTTPS yang valid.");
   }
-  if (!["redis:", "rediss:"].includes(url.protocol) || !url.hostname) {
-    throw new Error("REDIS_URL harus menggunakan protokol redis:// atau rediss://.");
+  if (url.protocol !== "https:" || !url.hostname) {
+    throw new Error("UPSTASH_REDIS_REST_URL harus menggunakan HTTPS.");
   }
-  return value;
+  return { url: urlValue, token };
 }
 
 export function getAllowedOrigins(): Set<string> {
@@ -68,7 +76,7 @@ export function getSessionTtlSeconds(): number {
 }
 
 export function validateEnvironment(): void {
-  getRedisUrl();
+  getUpstashRedisConfig();
   getAllowedOrigins();
   getSessionCookieName();
   getSessionTtlSeconds();

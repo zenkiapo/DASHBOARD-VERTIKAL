@@ -27,6 +27,10 @@ npm run db:seed
 npm run dev
 ```
 
+Isi `UPSTASH_REDIS_REST_URL` dan `UPSTASH_REDIS_REST_TOKEN` di `.env` dari
+database Upstash sebelum menjalankan API. Docker Compose lokal hanya
+menyediakan PostgreSQL; sesi autentikasi memakai Upstash REST.
+
 Server berjalan pada `http://localhost:4000`. Endpoint hanya menggunakan data
 Google Sheets yang dikonfigurasi; server tidak mengganti data produksi dengan
 mock. Jika konfigurasi tidak tersedia, API mengembalikan HTTP 503 dengan pesan
@@ -48,7 +52,8 @@ npm start
 | `PORT` | Port HTTP; default `4000` |
 | `DATABASE_URL` | URL PostgreSQL runtime; gunakan URL pooler jika provider menyarankannya |
 | `DIRECT_URL` | Koneksi PostgreSQL langsung untuk Prisma migrate/db push |
-| `REDIS_URL` | Koneksi Redis untuk sesi |
+| `UPSTASH_REDIS_REST_URL` | HTTPS REST URL database Upstash Redis |
+| `UPSTASH_REDIS_REST_TOKEN` | Token REST Upstash; rahasiakan nilainya |
 | `CLIENT_ORIGINS` | Daftar origin frontend yang diizinkan, dipisahkan koma |
 | `SESSION_TTL_SECONDS` | TTL Redis/cookie; default `28800` (8 jam) |
 | `SESSION_COOKIE_NAME` | Nama cookie sesi; default `smavo.sid` |
@@ -190,19 +195,19 @@ terkonfirmasi `google-sheets`.
 ## Akun, autentikasi, dan catatan kebijakan
 
 Fitur DSS memakai Prisma ORM dengan PostgreSQL untuk tabel `User` dan
-`PolicyNote`, serta Redis untuk sesi login. Data survei tetap dibaca dari
-Google Sheets. Salin variabel yang diperlukan dari `.env.example` ke `.env`
-tanpa mengganti nilai `GOOGLE_SHEETS_CSV_URL`.
+`PolicyNote`, serta Upstash Redis REST untuk sesi login. Data survei tetap
+dibaca dari Google Sheets. Salin variabel yang diperlukan dari `.env.example`
+ke `.env` tanpa mengganti nilai `GOOGLE_SHEETS_CSV_URL`.
 
-Untuk layanan development lokal, jalankan PostgreSQL dan Redis dari folder
-`server`:
+Untuk development lokal, jalankan PostgreSQL dari folder `server`:
 
 ```powershell
 docker compose up -d
 ```
 
-Kredensial pada `docker-compose.yml` hanya untuk development lokal; ganti
-dengan kredensial terkelola sebelum deployment. Siapkan database dan akun demo:
+Kredensial PostgreSQL pada `docker-compose.yml` hanya untuk development lokal;
+ganti dengan kredensial terkelola sebelum deployment. Isi juga URL dan token
+Upstash pada `.env`, lalu siapkan database dan akun demo:
 
 ```powershell
 npm run db:generate
@@ -210,7 +215,7 @@ npm run db:migrate
 npm run db:seed
 ```
 
-Login membuat ID sesi acak yang disimpan di Redis selama 8 jam (default).
+Login membuat ID sesi acak yang disimpan di Upstash Redis selama 8 jam (default).
 Browser menerima ID tersebut melalui cookie `HttpOnly`, `SameSite=Lax` lokal
 atau `SameSite=None; Secure` di production; ID sesi tidak dikirim pada body
 JSON atau disimpan sebagai bearer token di frontend. Role dan kelas binaan
@@ -249,7 +254,7 @@ deployment produksi. Endpoint autentikasi:
 - `POST /api/auth/login` dengan `{ "email": "...", "password": "..." }`
 - `POST /api/auth/demo-login` dengan `{ "role": "KEPSEK" }`
 - `GET /api/auth/me` memeriksa sesi dari cookie
-- `POST /api/auth/logout` menghapus sesi Redis dan cookie
+- `POST /api/auth/logout` menghapus sesi Upstash Redis dan cookie
 
 Akun SISWA dapat membuka dashboard agregat, tetapi tidak mendapatkan tombol
 ekspor PDF maupun akses ke endpoint catatan kebijakan. Akun staf tetap
@@ -306,12 +311,13 @@ jangan mencampur kedua alur tanpa baseline migration.
 
 ### 2. Deploy API di Render
 
-1. Siapkan URL PostgreSQL dan Redis terkelola; jangan memakai `localhost`
-   pada konfigurasi production.
+1. Siapkan URL PostgreSQL dan database Upstash Redis; jangan memakai
+   `localhost` pada konfigurasi production.
 2. Hubungkan GitHub repository ke Render Blueprint menggunakan
    `v2/render.yaml`. Blueprint memakai root directory `v2/server`, membangun
    API, dan memeriksa endpoint `/health`.
-3. Isi Render environment variables `DATABASE_URL`, `DIRECT_URL`, `REDIS_URL`,
+3. Isi Render environment variables `DATABASE_URL`, `DIRECT_URL`,
+   `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`,
    `GOOGLE_SHEETS_CSV_URL`, dan `CLIENT_ORIGINS`. Atur juga
    `SESSION_COOKIE_NAME=smavo.sid` dan `SESSION_TTL_SECONDS=28800`.
 4. Set `CLIENT_ORIGINS` menjadi origin frontend HTTPS yang tepat, misalnya

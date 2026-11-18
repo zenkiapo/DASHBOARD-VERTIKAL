@@ -11,7 +11,7 @@ function sessionKey(sessionId: string): string {
 export async function createAuthSession(userId: string): Promise<string> {
   const sessionId = randomBytes(32).toString("base64url");
   await getRedisClient().set(sessionKey(sessionId), userId, {
-    EX: getSessionTtlSeconds(),
+    ex: getSessionTtlSeconds(),
   });
   return sessionId;
 }
