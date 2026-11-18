@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  KEPSEK
+  GURU_BK
+  WALI_KELAS
+  ADMIN
+  SISWA
+}
+
+enum NoteStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+model User {
+  id            String       @id @default(uuid())
+  name          String
+  email         String       @unique
+  passwordHash  String
+  role          Role
+  assignedClass String?
+  notes         PolicyNote[]
+  createdAt     DateTime     @default(now())
+}
+
+model PolicyNote {
+  id            String     @id @default(uuid())
+  authorId      String
+  author        User       @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  habitCategory String
+  targetScope   String
+  noteContent   String
+  followUpNote  String?
+  status        NoteStatus @default(PENDING)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([targetScope, createdAt])
+  @@index([authorId])
+}
