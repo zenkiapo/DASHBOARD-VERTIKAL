@@ -211,7 +211,7 @@ function parseLongForm(
     (!responseHeader && !scoreHeader)
   ) {
     throw new SurveyDataError(
-      "CSV format baris-per-butir membutuhkan Timestamp, Jenis Kelamin, Kelas, Kategori Kebiasaan, Pertanyaan, dan Respon atau Skor Likert.",
+      "CSV format baris-pernyataan membutuhkan Timestamp, Jenis Kelamin, Kelas, Kategori Kebiasaan, Pertanyaan, dan Respon atau Skor Likert.",
     );
   }
 
@@ -294,7 +294,7 @@ function parseLongForm(
     const recordItems = seenItems.get(recordKey)!;
     if (recordItems.has(item)) {
       throw new SurveyDataError(
-        `Butir survei duplikat pada baris CSV ${rowNumber}.`,
+        `Pernyataan survei duplikat pada baris CSV ${rowNumber}.`,
       );
     }
     recordItems.add(item);

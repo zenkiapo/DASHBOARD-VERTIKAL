@@ -17,14 +17,14 @@ interface TeamMember {
 const teamMembers: TeamMember[] = [
   {
     name: "Bagaskara Bisma Anoka",
-    role: "Team Leader",
+    role: "Project Lead",
     initials: "BB",
     responsibility:
       "Mengoordinasikan tim, menjaga arah riset 7 KAIH, dan memastikan setiap bagian proyek berjalan selaras.",
   },
   {
     name: "Rei Dillan Hartedi",
-    role: "Dashboard Developer",
+    role: "Dashboard Lead",
     initials: "RD",
     responsibility:
       "Mengembangkan dashboard serta visualisasi data agar hasil pemantauan mudah dibaca dan ditindaklanjuti.",
@@ -45,7 +45,7 @@ const teamMembers: TeamMember[] = [
   },
   {
     name: "Mohammad Arsa Dafansyah",
-    role: "Prompter Engineer",
+    role: "Gemini & Insight Lead",
     initials: "MA",
     responsibility:
       "Merancang prompt dan alur kerja AI untuk mendukung riset, analisis, dan proses pengembangan proyek.",

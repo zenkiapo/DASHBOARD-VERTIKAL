@@ -213,7 +213,7 @@ export function WelcomePage({ onOpenDashboard, onOpenTeam }: WelcomePageProps) {
         </div>
         <p>
           Di SMAN 2 Cibinong, 7 KAIH dipantau sebagai bagian dari VERTIKAL SMA
-          2026. Jawaban atas 35 butir pernyataan diolah secara agregat dan anonim
+          2026. Jawaban atas 35 pernyataan diolah secara agregat dan anonim
           untuk membaca pola kebiasaan siswa kelas X, XI, dan XII. Pemantauan
           berkala membantu sekolah melihat area yang perlu diperkuat tanpa
           menjadikan skor sebagai label bagi siswa.
@@ -234,9 +234,9 @@ export function WelcomePage({ onOpenDashboard, onOpenTeam }: WelcomePageProps) {
         <div className="methodology-grid">
           <article className="method-card">
             <span className="method-icon"><ClipboardList size={19} /></span>
-            <span className="method-value">35 <small>butir</small></span>
+            <span className="method-value">35 <small>pernyataan</small></span>
             <h3>Instrumen terstruktur</h3>
-            <p>Instrumen terdiri atas 35 butir pernyataan: 5 pernyataan untuk setiap kebiasaan.</p>
+            <p>Instrumen terdiri atas 35 pernyataan: 5 pernyataan untuk setiap kebiasaan.</p>
           </article>
           <article className="method-card">
             <span className="method-icon"><ChartNoAxesCombined size={19} /></span>
@@ -305,7 +305,7 @@ export function WelcomePage({ onOpenDashboard, onOpenTeam }: WelcomePageProps) {
             <span className="welcome-section-kicker">MONITORING</span>
             <h3>Empat checkpoint memberi konteks perubahan.</h3>
             <p>
-              Sebanyak 35 butir, lima untuk setiap kebiasaan, dicatat dengan
+              Sebanyak 35 pernyataan, lima untuk setiap kebiasaan, dicatat dengan
               skala Likert 1–4 pada empat pengukuran selama dua pekan. Ringkasan
               dapat dibaca menurut jenjang, jenis kelamin, dan periode.
             </p>

@@ -64,7 +64,7 @@ peringkat skor terendah, distribusi Likert, perbandingan jenjang, serta tren
 empat checkpoint. Toggle pada grafik tren dapat menyembunyikan atau
 menampilkan tiap kebiasaan.
 
-Halaman pembuka memuat metodologi monitoring 35 butir (5 butir untuk tiap
+Halaman pembuka memuat metodologi monitoring 35 pernyataan (5 pernyataan untuk tiap
 kebiasaan), skala Likert 1–4, empat checkpoint, serta cakupan kelas X–XII.
 Galeri membaca foto lokal dari `public/gallery/scene-morning.jpg`,
 `scene-sport.jpg`, `scene-study.jpg`, dan `scene-community.jpg`. Letakkan foto

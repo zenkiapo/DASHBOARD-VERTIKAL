@@ -88,10 +88,10 @@ pseudonim `SMAVO-0001`, dan kunci sementara dibuang setelah parsing.
 Pertanyaan, kategori, waktu pengisian, kelas/angkatan, label jawaban, dan skor
 Likert tetap tersedia di record internal. Tiap pengisian harus mempunyai
 tepat 35 jawaban valid. Nilai jawaban `Respon` dipakai untuk distribusi,
-sedangkan `Skor Likert` dipakai untuk rata-rata (termasuk butir yang skornya
+sedangkan `Skor Likert` dipakai untuk rata-rata (termasuk pernyataan yang skornya
 sudah dibalik).
 
-Sheet saat ini menyediakan 18.655 baris untuk 533 pengisian (35 butir per
+Sheet saat ini menyediakan 18.655 baris untuk 533 pengisian (35 pernyataan per
 pengisian), tetapi tidak memiliki kolom periode. Periode diturunkan dari tanggal
 `Timestamp` menggunakan checkpoint 2026 berikut:
 
@@ -119,7 +119,7 @@ ke KPI, skor kebiasaan, distribusi Likert, dan jumlah responden keseluruhan.
 Karena periodenya dan demografinya tidak tersedia, kontribusinya ditandai
 `Anonim / tidak diketahui`, tidak dimasukkan ke perbandingan kelas atau tren,
 dan tidak muncul saat filter periode tertentu dipakai. Item 4 dibalik skornya
-agar konsisten dengan butir negatif pada survei utama. Urutan 35 kolom
+agar konsisten dengan pernyataan negatif pada survei utama. Urutan 35 kolom
 diperlakukan sebagai urutan item 1–35 pada instrumen.
 
 Pengisian utama yang tidak memiliki 35 jawaban valid dilewati dan dicatat
