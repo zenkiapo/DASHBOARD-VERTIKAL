@@ -50,6 +50,20 @@ const teamMembers: TeamMember[] = [
     responsibility:
       "Merancang prompt dan alur kerja AI untuk mendukung riset, analisis, dan proses pengembangan proyek.",
   },
+  {
+    name: "Ahmad Tirtayasa, S.Pd.",
+    role: "Guru Substansi 7 KAIH",
+    initials: "AT",
+    responsibility:
+      "Memberikan arahan substansi 7 KAIH agar pemantauan dan analisis sesuai dengan tujuan pembiasaan siswa.",
+  },
+  {
+    name: "Nur Adillawati Kosim Saputri, M.Pd.",
+    role: "Guru Pendamping",
+    initials: "NA",
+    responsibility:
+      "Mendampingi tim dalam pelaksanaan proyek dan pengembangan dashboard monitoring 7 KAIH.",
+  },
 ];
 
 export function TeamPage({ onBack, onOpenDashboard }: TeamPageProps) {
