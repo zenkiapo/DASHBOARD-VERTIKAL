@@ -89,9 +89,13 @@ function GalleryMedia({
 
   return (
     <div className={`gallery-art${large ? " gallery-art-large" : ""}`}>
-      <span className="gallery-art-orb" aria-hidden="true" />
-      <span className="gallery-art-shape shape-one" aria-hidden="true" />
-      <span className="gallery-art-shape shape-two" aria-hidden="true" />
+      {!imageLoaded && (
+        <>
+          <span className="gallery-art-orb" aria-hidden="true" />
+          <span className="gallery-art-shape shape-one" aria-hidden="true" />
+          <span className="gallery-art-shape shape-two" aria-hidden="true" />
+        </>
+      )}
       {item.imageUrl && !imageFailed && (
         <img
           className={imageLoaded ? "is-loaded" : ""}
