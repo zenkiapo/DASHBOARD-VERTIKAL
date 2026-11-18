@@ -63,11 +63,16 @@ host `5433`. Di cloud, akun/catatan disimpan pada PostgreSQL terkelola; filesyst
 Render tidak digunakan untuk menyimpan database.
 
 Data survei Google Sheets disimpan di `node-cache` selama 180 detik. Setelah
-TTL berakhir, server mencoba memuat ulang tab utama dan `Sheet3`. Jika refresh
-gagal, hanya data terakhir yang sebelumnya lolos validasi boleh menjadi
-fallback, maksimum 24 jam sejak berhasil dimuat. API menandai respons
-`isStale: true` dan dashboard memberi peringatan; ekspor PDF dinonaktifkan saat
-data stale. Bila belum ada cache valid, error dikembalikan (tanpa mock fallback).
+TTL cache segar berakhir, server segera menyajikan data tervalidasi terakhir
+sambil memuat ulang tab utama dan `Sheet3` di latar belakang. Refresh bersamaan
+digabung menjadi satu proses per instance Node.js. Data stale berlaku maksimum
+24 jam sejak berhasil dimuat; API menandai respons `isStale: true` dan dashboard
+memberi peringatan, sementara ekspor PDF dinonaktifkan. Pada cold start tanpa
+cache last-known-good, request pertama tetap menunggu fetch dan validasi CSV.
+Cache ini bersifat per proses/instance, bukan cache global lintas instance
+Vercel/Render; jika cold start atau skala multi-instance membebani kuota Sheets,
+gunakan cache bersama yang terkelola sebelum menaikkan TTL. Bila belum ada cache
+valid, error dikembalikan (tanpa mock fallback).
 
 Atur `GOOGLE_SHEETS_CSV_URL` pada `.env` ke URL CSV yang dapat dibaca server.
 Jangan mencetak atau mengirimkan nilai URL konfigurasi karena dapat memuat
@@ -137,9 +142,12 @@ mengabaikan parameter jenjang/rombel yang dikirim dan memaksa filter ke
 - `kelas`: jenjang `X`, `XI`, `XII` (atau label seperti `X-1` untuk satu rombel).
 - `jenis_kelamin`: pencocokan tanpa membedakan kapitalisasi.
 - `periode` atau `periode_pengukuran`: nilai `1`–`4` atau `Pengukuran 1`–`4`.
+- Nilai filter teks dibatasi 64 karakter dan karakter kontrol ditolak.
 - Filter kelas/gender/periode diterapkan ke KPI, skor kebiasaan, distribusi,
   perbandingan kelas, serta demografi. Tren selalu menampilkan keempat periode,
   dengan filter kelas dan gender tetap berlaku.
+- Respons API memakai `Cache-Control: no-store` agar payload sesi/kebijakan tidak
+  disimpan cache browser atau proxy.
 - `overallIndex` adalah rata-rata tujuh skor kebiasaan. `totalRespondents`
   menghitung ID unik, sedangkan `totalResponses` menghitung baris pengukuran.
 - `habits` mengikuti urutan resmi; `priorityHabits` berisi dua skor terendah.

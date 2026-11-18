@@ -19,6 +19,7 @@ import { getRedisClient } from "./lib/redis.js";
 const app = express();
 
 app.use((request, response, next) => {
+  response.setHeader("Cache-Control", "no-store");
   const origin = request.get("origin");
   const allowedOrigins = getAllowedOrigins();
   const isAllowedOrigin = !origin || allowedOrigins.has(origin);
