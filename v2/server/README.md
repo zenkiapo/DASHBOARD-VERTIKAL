@@ -42,6 +42,9 @@ npm run build
 npm start
 ```
 
+`npm run build` selalu menjalankan `prisma generate` sebelum TypeScript dikompilasi,
+agar Prisma Client mengikuti `prisma/schema.prisma` pada setiap deployment.
+
 ## Konfigurasi Google Sheets
 
 `src/index.ts` memuat `.env` melalui `dotenv/config`. Backend membaca:
