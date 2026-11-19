@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node --test dist/config/env.test.js dist/services/aggregatorService.test.js dist/services/policyNoteAccess.test.js",
+    "test": "npm run build && node --test dist/config/env.test.js dist/services/aggregatorService.test.js dist/services/policyNoteAccess.test.js dist/services/rtlAccess.test.js",
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "db:generate": "prisma generate",

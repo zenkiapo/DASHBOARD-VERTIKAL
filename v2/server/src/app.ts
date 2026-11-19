@@ -8,6 +8,7 @@ import { ApiError } from "./errors/ApiError.js";
 import authRouter from "./routes/auth.js";
 import dashboardRouter from "./routes/dashboard.js";
 import policyNotesRouter from "./routes/policyNotes.js";
+import rtlRouter from "./routes/rtl.js";
 import {
   SurveyConfigError,
   SurveyDataError,
@@ -77,6 +78,7 @@ app.get("/health", async (_request, response) => {
 app.use("/api/auth", authRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use("/api/policy-notes", policyNotesRouter);
+app.use("/api/rtl", rtlRouter);
 
 const errorHandler: ErrorRequestHandler = (
   error: Error,

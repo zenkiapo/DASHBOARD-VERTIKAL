@@ -1,6 +1,18 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { TeamPage } from "./components/TeamPage";
 import { WelcomePage } from "./components/WelcomePage";
+import { RtlPage } from "./components/RtlPage";
+
+type Page = "welcome" | "dashboard" | "team" | "rtl";
+
+function getPage(): Page {
+  switch (window.location.pathname.replace(/\/+$/, "")) {
+    case "/dashboard": return "dashboard";
+    case "/team": return "team";
+    case "/rtl": return "rtl";
+    default: return "welcome";
+  }
+}
 
 const Dashboard = lazy(() =>
   import("./components/Dashboard").then((module) => ({
@@ -9,7 +21,21 @@ const Dashboard = lazy(() =>
 );
 
 export default function App() {
-  const [page, setPage] = useState<"welcome" | "dashboard" | "team">("welcome");
+  const [page, setPage] = useState<Page>(getPage);
+  const navigate = useCallback((nextPage: Page) => {
+    const path = nextPage === "welcome" ? "/" : `/${nextPage}`;
+    if (window.location.pathname !== path) {
+      window.history.pushState({}, "", path);
+    }
+    setPage(nextPage);
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    const onPopState = () => setPage(getPage());
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   if (page === "dashboard") {
     return (
@@ -22,22 +48,36 @@ export default function App() {
           </main>
         }
       >
-        <Dashboard onBack={() => setPage("welcome")} />
+        <Dashboard
+          onBack={() => navigate("welcome")}
+          onOpenRtl={() => navigate("rtl")}
+        />
       </Suspense>
     );
   }
   if (page === "team") {
     return (
       <TeamPage
-        onBack={() => setPage("welcome")}
-        onOpenDashboard={() => setPage("dashboard")}
+        onBack={() => navigate("welcome")}
+        onOpenDashboard={() => navigate("dashboard")}
+        onOpenRtl={() => navigate("rtl")}
+      />
+    );
+  }
+  if (page === "rtl") {
+    return (
+      <RtlPage
+        onBack={() => navigate("welcome")}
+        onOpenDashboard={() => navigate("dashboard")}
+        onOpenTeam={() => navigate("team")}
       />
     );
   }
   return (
     <WelcomePage
-      onOpenDashboard={() => setPage("dashboard")}
-      onOpenTeam={() => setPage("team")}
+      onOpenDashboard={() => navigate("dashboard")}
+      onOpenTeam={() => navigate("team")}
+      onOpenRtl={() => navigate("rtl")}
     />
   );
 }

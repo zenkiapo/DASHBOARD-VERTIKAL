@@ -21,6 +21,7 @@ import { galleryItems, type GalleryItem } from "../data/galleryItems";
 interface WelcomePageProps {
   onOpenDashboard: () => void;
   onOpenTeam: () => void;
+  onOpenRtl: () => void;
 }
 
 const habits = [
@@ -120,7 +121,11 @@ function GalleryMedia({
   );
 }
 
-export function WelcomePage({ onOpenDashboard, onOpenTeam }: WelcomePageProps) {
+export function WelcomePage({
+  onOpenDashboard,
+  onOpenTeam,
+  onOpenRtl,
+}: WelcomePageProps) {
   const [selectedGalleryItem, setSelectedGalleryItem] =
     useState<GalleryItem | null>(null);
   const galleryDialogRef = useRef<HTMLDialogElement>(null);
@@ -148,6 +153,10 @@ export function WelcomePage({ onOpenDashboard, onOpenTeam }: WelcomePageProps) {
           <a href="#tentang">Tentang 7 KAIH</a>
           <a href="#kebiasaan">7 Kebiasaan</a>
           <a href="#galeri">Galeri</a>
+          <button className="welcome-team-link" onClick={onOpenRtl} type="button">
+            <ClipboardList aria-hidden="true" size={14} />
+            <span>Rencana RTL</span>
+          </button>
           <button
             aria-label="Buka halaman Tim Pengembang"
             className="welcome-team-link"
@@ -193,11 +202,7 @@ export function WelcomePage({ onOpenDashboard, onOpenTeam }: WelcomePageProps) {
           </div>
         </div>
         <div className="welcome-hero-art" aria-hidden="true">
-          <div className="hero-orbit orbit-one" />
-          <div className="hero-orbit orbit-two" />
-          <div className="hero-sun" />
-          <div className="hero-land land-back" />
-          <div className="hero-land land-front" />
+          <img src="/gallery/optimized/hero-art.png" alt="Hero Art" />
           <div className="hero-card hero-card-top"><Sunrise size={18} /><span>Mulai hari<br /><b>dengan semangat</b></span></div>
           <div className="hero-card hero-card-bottom"><Heart size={17} /><span>Bangun kebiasaan,<br /><b>tumbuhkan karakter</b></span></div>
           <div className="hero-art-label">7 KAIH <span>SMAVO</span></div>

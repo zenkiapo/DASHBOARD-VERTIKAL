@@ -1,9 +1,10 @@
 import { useEffect } from "react";
-import { ArrowLeft, ArrowRight, Camera, Users } from "lucide-react";
+import { ArrowLeft, ArrowRight, Camera, ClipboardList, Users } from "lucide-react";
 
 interface TeamPageProps {
   onBack: () => void;
   onOpenDashboard: () => void;
+  onOpenRtl: () => void;
 }
 
 interface TeamMember {
@@ -66,7 +67,7 @@ const teamMembers: TeamMember[] = [
   },
 ];
 
-export function TeamPage({ onBack, onOpenDashboard }: TeamPageProps) {
+export function TeamPage({ onBack, onOpenDashboard, onOpenRtl }: TeamPageProps) {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -87,6 +88,9 @@ export function TeamPage({ onBack, onOpenDashboard }: TeamPageProps) {
           <Users aria-hidden="true" size={15} />
           Tim Pengembang
         </span>
+        <button className="rtl-nav-button" onClick={onOpenRtl} type="button">
+          <ClipboardList size={14} /> Rencana RTL
+        </button>
         <button className="welcome-nav-cta" onClick={onOpenDashboard} type="button">
           <span>Buka dashboard</span><ArrowRight size={15} />
         </button>

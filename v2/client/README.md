@@ -64,6 +64,10 @@ peringkat skor terendah, distribusi Likert, perbandingan jenjang, serta tren
 empat checkpoint. Toggle pada grafik tren dapat menyembunyikan atau
 menampilkan tiap kebiasaan.
 
+Komparasi checkpoint tersedia di dashboard dengan pilihan dua periode. Skor,
+delta, dan perubahan relatif dihitung di backend dari Google Sheets serta
+mengikuti filter jenjang/rombel dan jenis kelamin yang aktif.
+
 Halaman pembuka memuat metodologi monitoring 35 pernyataan (5 pernyataan untuk tiap
 kebiasaan), skala Likert 1–4, empat checkpoint, serta cakupan kelas X–XII.
 Galeri membaca foto lokal dari `public/gallery/scene-morning.jpg`,
@@ -75,6 +79,8 @@ Tombol **Ekspor PDF** hanya bekerja jika API menandai data sebagai berasal
 dari Google Sheets. Laporan berisi identitas SMAN 2 Cibinong, filter aktif,
 KPI, kesimpulan dan rekomendasi berbasis skor terendah, distribusi Likert,
 perbandingan jenjang, serta tren.
+PDF juga menyertakan komparasi checkpoint yang sedang dipilih dan daftar RTL
+yang dapat diakses akun aktif.
 
 Login diperlukan untuk membuka data dashboard. Panel **Catatan Evaluasi &
 Tindak Lanjut** tersedia di baris tren dashboard setelah masuk.
@@ -84,6 +90,12 @@ agregat tanpa akses ekspor PDF atau catatan kebijakan. KEPSEK/ADMIN dapat
 membuat, mengedit, dan menghapus catatan; GURU_BK/ADMIN mengelola status dan
 catatan pendampingan; WALI_KELAS hanya melihat catatan sesuai lingkup kelas
 binaan. Aturan akses kelas dan catatan siswa juga diberlakukan backend.
+
+Halaman **Rencana Tindak Lanjut** tersedia pada `/rtl`. KEPSEK/ADMIN dapat
+membuat dan mengedit draf; GURU_BK, ADMIN, KEPSEK, atau peran penanggung jawab
+dapat memperbarui status sesuai aturan backend. WALI_KELAS hanya mengakses
+target seluruh sekolah, jenjang, dan rombel binaannya. Data disimpan sebagai
+RTL terpisah dari **Catatan Evaluasi & Tindak Lanjut** yang sudah ada.
 
 Sebelum membuka panel, siapkan PostgreSQL dari folder `server` dan konfigurasi
 Upstash Redis pada `.env` server, lalu salin konfigurasi `.env.example` ke

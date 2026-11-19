@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { generateMockSurveyRecords } from "../data/mockData.js";
 import {
+  aggregatePeriodComparison,
   aggregateDashboardSummary,
   filterSurveyRecords,
   parseDashboardFilters,
@@ -268,6 +269,43 @@ test("summary honors class, gender, and period filters", () => {
     summary.trends.map((point) => point.periode),
     [1, 2, 3, 4],
   );
+});
+
+test("period comparison uses Google Sheets period scores and active demographic filters", () => {
+  const records = generateMockSurveyRecords();
+  const comparison = aggregatePeriodComparison(
+    records,
+    { kelas: "X-1", jenisKelamin: "Perempuan" },
+    1,
+    4,
+    "google-sheets",
+  );
+  const first = aggregateDashboardSummary(
+    records,
+    { kelas: "X-1", jenisKelamin: "Perempuan", periode: 1 },
+    "google-sheets",
+  );
+  const last = aggregateDashboardSummary(
+    records,
+    { kelas: "X-1", jenisKelamin: "Perempuan", periode: 4 },
+    "google-sheets",
+  );
+
+  assert.equal(comparison.fromRespondents, first.totalRespondents);
+  assert.equal(comparison.toRespondents, last.totalRespondents);
+  assert.equal(comparison.habits.length, 7);
+  comparison.habits.forEach((habit, index) => {
+    assert.equal(habit.fromScore, first.habits[index]?.score);
+    assert.equal(habit.toScore, last.habits[index]?.score);
+    assert.equal(
+      habit.delta,
+      habit.fromScore === null || habit.toScore === null
+        ? null
+        : Math.round((habit.toScore - habit.fromScore) * 100) / 100,
+    );
+  });
+  assert.equal(comparison.appliedFilters.kelas, "X-1");
+  assert.equal(comparison.dataSource, "google-sheets");
 });
 
 test("class filters distinguish a specific homeroom from a whole grade", () => {

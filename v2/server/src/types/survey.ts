@@ -97,6 +97,30 @@ export interface DashboardSummary {
   dataSource: DataSource;
 }
 
+export interface PeriodComparisonHabit {
+  key: HabitKey;
+  habit: string;
+  fromScore: number | null;
+  toScore: number | null;
+  delta: number | null;
+  changePercent: number | null;
+  direction: "up" | "down" | "stable" | "unavailable";
+}
+
+export interface PeriodComparison {
+  fromPeriod: MeasurementPeriod;
+  toPeriod: MeasurementPeriod;
+  fromRespondents: number;
+  toRespondents: number;
+  habits: PeriodComparisonHabit[];
+  appliedFilters: {
+    kelas: string | null;
+    jenisKelamin: string | null;
+  };
+  dataSource: DataSource;
+  isStale?: boolean;
+}
+
 export interface CachedSurveyData {
   records: SurveyRecord[];
   dataSource: DataSource;

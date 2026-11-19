@@ -5,6 +5,7 @@ import {
   type HabitKey,
   type HabitScore,
   type MeasurementPeriod,
+  type PeriodComparison,
   type SurveyRecord,
 } from "../types/survey.js";
 
@@ -258,6 +259,67 @@ export function aggregateDashboardSummary(
       kelas: classDemographics,
       jenisKelamin: countBy(filteredRecords, (record) => record.jenisKelamin),
     },
+    appliedFilters: filters,
+    dataSource,
+  };
+}
+
+export function aggregatePeriodComparison(
+  records: SurveyRecord[],
+  filters: Pick<DashboardFilters, "kelas" | "jenisKelamin">,
+  fromPeriod: MeasurementPeriod,
+  toPeriod: MeasurementPeriod,
+  dataSource: DashboardSummary["dataSource"],
+): PeriodComparison {
+  const scoreForPeriod = (period: MeasurementPeriod): {
+    scores: HabitScore[];
+    respondents: number;
+  } => {
+    const periodRecords = filterSurveyRecords(
+      records,
+      { ...filters, periode: period },
+    );
+    return {
+      scores: HABITS.map((_, index) => averageHabit(periodRecords, index)),
+      respondents: uniqueRespondents(periodRecords),
+    };
+  };
+
+  const from = scoreForPeriod(fromPeriod);
+  const to = scoreForPeriod(toPeriod);
+  const habits = from.scores.map((fromHabit, index) => {
+    const toHabit = to.scores[index]!;
+    const delta =
+      fromHabit.score === null || toHabit.score === null
+        ? null
+        : round2(toHabit.score - fromHabit.score);
+    return {
+      key: fromHabit.key,
+      habit: fromHabit.habit,
+      fromScore: fromHabit.score,
+      toScore: toHabit.score,
+      delta,
+      changePercent:
+        delta === null || fromHabit.score === null
+          ? null
+          : round2((delta / fromHabit.score) * 100),
+      direction:
+        delta === null
+          ? "unavailable" as const
+          : delta > 0
+            ? "up" as const
+            : delta < 0
+              ? "down" as const
+              : "stable" as const,
+    };
+  });
+
+  return {
+    fromPeriod,
+    toPeriod,
+    fromRespondents: from.respondents,
+    toRespondents: to.respondents,
+    habits,
     appliedFilters: filters,
     dataSource,
   };

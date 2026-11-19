@@ -139,6 +139,20 @@ memerlukan cookie sesi aktif. Untuk WALI_KELAS, backend
 mengabaikan parameter jenjang/rombel yang dikirim dan memaksa filter ke
 `assignedClass` akun.
 
+`GET /api/dashboard/comparison?from=1&to=4&kelas=X&jenis_kelamin=Perempuan`
+menghasilkan skor awal/akhir, delta, perubahan relatif, dan jumlah responden
+tiap checkpoint. Endpoint mengabaikan filter `periode` dashboard karena kedua
+checkpoint ditentukan eksplisit, menerapkan filter jenjang/rombel dan gender,
+serta hanya menerima data Google Sheets.
+
+`GET /api/rtl`, `POST /api/rtl`, `PATCH /api/rtl/:id`, dan
+`DELETE /api/rtl/:id` mengelola rencana tindak lanjut secara terpisah dari
+Policy Notes. KEPSEK/ADMIN menyusun atau mengubah isi; GURU_BK, ADMIN, KEPSEK,
+atau peran yang ditetapkan dapat memperbarui status. WALI_KELAS hanya melihat
+target seluruh sekolah, jenjang, dan rombel binaannya. Siswa ditolak di
+middleware dan controller. Snapshot komparasi dibuat ulang server-side dari
+Google Sheets dan hanya menyimpan statistik agregat.
+
 - `kelas`: jenjang `X`, `XI`, `XII` (atau label seperti `X-1` untuk satu rombel).
 - `jenis_kelamin`: pencocokan tanpa membedakan kapitalisasi.
 - `periode` atau `periode_pengukuran`: nilai `1`–`4` atau `Pengukuran 1`–`4`.
@@ -152,6 +166,8 @@ mengabaikan parameter jenjang/rombel yang dikirim dan memaksa filter ke
   menghitung ID unik, sedangkan `totalResponses` menghitung baris pengukuran.
 - `habits` mengikuti urutan resmi; `priorityHabits` berisi dua skor terendah.
 - Persentase Likert dihitung atas seluruh jawaban item yang terisi per kebiasaan.
+- Skor komparasi `delta` ialah skor akhir dikurangi skor awal; perubahan relatif
+  dihitung terhadap skor awal dan dibulatkan dua desimal.
 
 ## Bentuk data untuk grafik
 
@@ -316,6 +332,13 @@ backup permanen.
 `db push` menerapkan model Prisma tanpa migration history. Jika database sudah
 dikelola dengan migration history, gunakan `npx prisma migrate deploy` dan
 jangan mencampur kedua alur tanpa baseline migration.
+
+Skema `RtlPlan` dan migration
+`prisma/migrations/20261119110000_add_rtl_plans/migration.sql` bersifat
+aditif dan mempertahankan tabel Policy Notes. Pada database production yang
+memakai `db push`, jalankan `npx prisma db push` setelah backup. Pada database
+dengan migration history yang sudah dibaseline, deploy migration tersebut
+dengan `npx prisma migrate deploy` sebelum mengaktifkan versi API baru.
 
 ### 2. Deploy API di Render
 

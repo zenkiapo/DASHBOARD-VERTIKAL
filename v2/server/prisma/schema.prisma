@@ -30,6 +30,7 @@ model User {
   role          Role
   assignedClass String?
   notes         PolicyNote[]
+  rtlPlans      RtlPlan[]
   createdAt     DateTime     @default(now())
 }
 
@@ -46,5 +47,25 @@ model PolicyNote {
   updatedAt     DateTime   @updatedAt
 
   @@index([targetScope, createdAt])
+  @@index([authorId])
+}
+
+model RtlPlan {
+  id                String     @id @default(uuid())
+  authorId          String
+  author            User       @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  habitCategory     String
+  targetScope       String
+  planContent       String
+  responsibleRole   Role
+  status            NoteStatus @default(PENDING)
+  comparisonFrom    Int
+  comparisonTo      Int
+  comparisonSummary String
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@index([targetScope, createdAt])
+  @@index([responsibleRole, status])
   @@index([authorId])
 }
