@@ -1,5 +1,6 @@
 import { Activity, ArrowDownRight, ArrowUpRight, Users } from "lucide-react";
 import type { DashboardSummary } from "../types/dashboard";
+import { ProgressiveDisclosureCard } from "./ProgressiveDisclosureCard";
 
 interface KpiCardsProps {
   summary: DashboardSummary;
@@ -53,16 +54,23 @@ export function KpiCards({ summary }: KpiCardsProps) {
   return (
     <div className="kpi-grid">
       {cards.map(({ label, value, note, icon: Icon, tone }) => (
-        <article className={`panel kpi-card kpi-${tone}`} key={label}>
-          <div className="kpi-top">
-            <span>{label}</span>
-            <span className="kpi-icon">
-              <Icon size={18} />
-            </span>
-          </div>
-          <strong className="kpi-value">{value}</strong>
-          <p>{note}</p>
-        </article>
+        <ProgressiveDisclosureCard
+          className={`panel kpi-card kpi-${tone}`}
+          details={<p>{note}</p>}
+          key={label}
+          label={label}
+          summary={
+            <>
+              <div className="kpi-top">
+                <span>{label}</span>
+                <span className="kpi-icon">
+                  <Icon size={18} />
+                </span>
+              </div>
+              <strong className="kpi-value">{value}</strong>
+            </>
+          }
+        />
       ))}
     </div>
   );
