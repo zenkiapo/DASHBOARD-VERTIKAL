@@ -3,12 +3,15 @@ import {
   AlertCircle,
   ArrowLeft,
   BarChart3,
+  ClipboardList,
   Clock3,
   FileDown,
   GraduationCap,
   LogIn,
   LogOut,
+  Megaphone,
   RefreshCw,
+  Users,
 } from "lucide-react";
 import { fetchDashboardSummary } from "../lib/api";
 import { fetchRtlPlans } from "../lib/rtlApi";
@@ -30,6 +33,7 @@ import { HabitRadarChart } from "./charts/HabitRadarChart";
 import { HabitTrendLineChart } from "./charts/HabitTrendLineChart";
 import { LikertDistributionChart } from "./charts/LikertDistributionChart";
 import { PeriodComparison } from "./PeriodComparison";
+import { ResponsiveActionMenu } from "./ResponsiveActionMenu";
 
 const emptyFilters: DashboardFilters = {
   kelas: "",
@@ -50,6 +54,7 @@ interface DashboardProps {
   onOpenLogin: () => void;
   onOpenRtl: () => void;
   onOpenAnnouncement: () => void;
+  onOpenTeam: () => void;
 }
 
 export function Dashboard({
@@ -57,6 +62,7 @@ export function Dashboard({
   onOpenLogin,
   onOpenRtl,
   onOpenAnnouncement,
+  onOpenTeam,
 }: DashboardProps) {
   const [filters, setFilters] = useState(emptyFilters);
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
@@ -265,12 +271,14 @@ export function Dashboard({
           <span>{summary ? "Google Sheets" : "Menunggu data"}</span>
           <span className="meta-divider" />
           <span>VERTIKAL SMA 2026</span>
-          <button className="rtl-nav-button" onClick={onOpenRtl} type="button">
-            Rencana RTL
-          </button>
-          <button className="rtl-nav-button" onClick={onOpenAnnouncement} type="button">
-            Pengumuman
-          </button>
+          <ResponsiveActionMenu
+            ariaLabel="Navigasi halaman"
+            actions={[
+              { label: "Rencana RTL", onSelect: onOpenRtl, icon: ClipboardList },
+              { label: "Pengumuman", onSelect: onOpenAnnouncement, icon: Megaphone },
+              { label: "Tim Pengembang", onSelect: onOpenTeam, icon: Users },
+            ]}
+          />
           {!session && !authLoading && (
             <button className="topbar-login-button" onClick={onOpenLogin} type="button">
               <LogIn size={14} /> Masuk

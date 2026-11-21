@@ -1,6 +1,14 @@
 import { useEffect } from "react";
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, Camera, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  BarChart3,
+  Camera,
+  ClipboardList,
+  Megaphone,
+  Users,
+} from "lucide-react";
 import { ResponsiveActionMenu } from "./ResponsiveActionMenu";
 
 interface TeamPageProps {
@@ -130,9 +138,9 @@ export function TeamPage({
         <ResponsiveActionMenu
           ariaLabel="Navigasi halaman"
           actions={[
-            { label: "Rencana RTL", onSelect: onOpenRtl },
-            { label: "Pengumuman", onSelect: onOpenAnnouncement },
-            { label: "Buka dashboard", onSelect: onOpenDashboard },
+            { label: "Rencana RTL", onSelect: onOpenRtl, icon: ClipboardList },
+            { label: "Pengumuman", onSelect: onOpenAnnouncement, icon: Megaphone },
+            { label: "Buka dashboard", onSelect: onOpenDashboard, icon: BarChart3 },
           ]}
         />
       </header>

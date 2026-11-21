@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
   ArrowLeft,
+  BarChart3,
   Check,
   ClipboardList,
+  Home,
   LogIn,
   LogOut,
+  Megaphone,
   Pencil,
   Plus,
   Save,
@@ -323,10 +326,10 @@ export function RtlPage({
         <ResponsiveActionMenu
           ariaLabel="Navigasi halaman"
           actions={[
-            { label: "Beranda", onSelect: onBack },
-            { label: "Dashboard", onSelect: onOpenDashboard },
-            { label: "Tim Pengembang", onSelect: onOpenTeam },
-            { label: "Pengumuman", onSelect: onOpenAnnouncement },
+            { label: "Beranda", onSelect: onBack, icon: Home },
+            { label: "Dashboard", onSelect: onOpenDashboard, icon: BarChart3 },
+            { label: "Tim Pengembang", onSelect: onOpenTeam, icon: Users },
+            { label: "Pengumuman", onSelect: onOpenAnnouncement, icon: Megaphone },
           ]}
         />
       </header>

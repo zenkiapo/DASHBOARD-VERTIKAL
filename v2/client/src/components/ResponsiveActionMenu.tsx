@@ -1,9 +1,10 @@
 import { useRef } from "react";
-import { Menu } from "lucide-react";
+import { Menu, type LucideIcon } from "lucide-react";
 
-type ResponsiveAction =
+type ResponsiveAction = (
   | { label: string; href: string; onSelect?: never }
-  | { label: string; onSelect: () => void; href?: never };
+  | { label: string; onSelect: () => void; href?: never }
+) & { icon?: LucideIcon };
 
 interface ResponsiveActionMenuProps {
   actions: ResponsiveAction[];
@@ -19,10 +20,12 @@ export function ResponsiveActionMenu({
     if (mobileMenuRef.current) mobileMenuRef.current.open = false;
   };
   const renderAction = (action: ResponsiveAction) => {
+    const Icon = action.icon;
     if (action.href !== undefined) {
       return (
         <a href={action.href} key={action.label} onClick={closeMobileMenu}>
-          {action.label}
+          {Icon && <Icon aria-hidden="true" className="responsive-action-menu__icon" size={16} />}
+          <span>{action.label}</span>
         </a>
       );
     }
@@ -36,7 +39,8 @@ export function ResponsiveActionMenu({
         }}
         type="button"
       >
-        {action.label}
+        {Icon && <Icon aria-hidden="true" className="responsive-action-menu__icon" size={16} />}
+        <span>{action.label}</span>
       </button>
     );
   };

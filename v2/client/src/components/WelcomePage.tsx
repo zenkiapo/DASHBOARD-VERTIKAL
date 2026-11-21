@@ -11,6 +11,7 @@ import {
   ClipboardList,
   ExternalLink,
   Heart,
+  Megaphone,
   Moon,
   Sunrise,
   Utensils,
@@ -195,12 +196,12 @@ export function WelcomePage({
         <ResponsiveActionMenu
           ariaLabel="Navigasi utama"
           actions={[
-            { label: "Tentang 7 KAIH", href: "#tentang" },
-            { label: "7 Kebiasaan", href: "#kebiasaan" },
-            { label: "Galeri", href: "#galeri" },
-            { label: "Rencana RTL", onSelect: onOpenRtl },
-            { label: "Pengumuman", onSelect: onOpenAnnouncement },
-            { label: "Tim Pengembang", onSelect: onOpenTeam },
+            { label: "Tentang 7 KAIH", href: "#tentang", icon: BookOpen },
+            { label: "7 Kebiasaan", href: "#kebiasaan", icon: Activity },
+            { label: "Galeri", href: "#galeri", icon: Camera },
+            { label: "Rencana RTL", onSelect: onOpenRtl, icon: ClipboardList },
+            { label: "Pengumuman", onSelect: onOpenAnnouncement, icon: Megaphone },
+            { label: "Tim Pengembang", onSelect: onOpenTeam, icon: Users },
           ]}
         />
         <div className="welcome-nav-actions">

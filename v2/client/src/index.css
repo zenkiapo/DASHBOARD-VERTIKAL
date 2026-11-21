@@ -15,8 +15,8 @@
   --accent: #4f46e5;
   --accent-hover: #4338ca;
   --accent-strong: #3730a3;
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
   --text-base: 1rem;
   --text-lg: clamp(1.125rem, 1rem + 0.35vw, 1.25rem);
   --heading-sm: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
@@ -103,6 +103,7 @@ h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); line-height: 1.2; }
 h2 { font-size: var(--heading-md); line-height: 1.25; }
 h3 { font-size: var(--heading-sm); line-height: 1.3; }
 h4 { font-size: var(--text-lg); line-height: 1.35; }
+h1, h2, h3, h4 { font-weight: 700; }
 p { font-size: var(--text-base); line-height: 1.5; }
 label { font-size: var(--text-sm); font-weight: 600; }
 button, input, select { font: inherit; }
@@ -702,6 +703,122 @@ button { cursor: pointer; font-size: var(--text-sm); }
 .login-error { margin: 13px 0 0; padding: 9px 10px; border: 1px solid #f2d0d0; border-radius: 7px; background: #fff8f8; color: #b84d55; font-size: 0.8125rem; line-height: 1.5; }
 .login-footer { padding: 18px; color: var(--muted); font-size: 0.8125rem; text-align: center; }
 
+.topbar,
+.team-nav,
+.login-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  backdrop-filter: blur(14px);
+}
+.topbar { min-height: 72px; height: auto; gap: 16px; background: rgba(255,255,255,.94); }
+.topbar-meta { min-width: 0; gap: 8px; white-space: nowrap; }
+.brand { flex: none; white-space: nowrap; }
+.topbar .responsive-action-menu__desktop { gap: 2px; }
+.responsive-action-menu__desktop button,
+.responsive-action-menu__panel button,
+.responsive-action-menu__desktop a,
+.responsive-action-menu__panel a {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.responsive-action-menu__panel button,
+.responsive-action-menu__panel a { justify-content: flex-start; }
+.topbar .responsive-action-menu__desktop button,
+.team-nav .responsive-action-menu__desktop button,
+.rtl-page .responsive-action-menu__desktop button,
+.announcement-page .responsive-action-menu__desktop button {
+  min-height: 40px;
+  padding-inline: 10px;
+}
+.responsive-action-menu__desktop button,
+.responsive-action-menu__panel button,
+.responsive-action-menu__desktop a,
+.responsive-action-menu__panel a {
+  gap: 8px;
+}
+.responsive-action-menu__icon { flex: none; color: var(--accent); }
+.page-heading {
+  align-items: center;
+  padding: clamp(18px, 2.4vw, 28px);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: linear-gradient(115deg, #fff 0%, #fbfcff 100%);
+  box-shadow: 0 10px 28px rgba(30, 41, 59, .045);
+}
+.page-heading h1 { max-width: 760px; font-size: clamp(1.875rem, 3.5vw, 2.625rem); }
+.page-heading p { max-width: 650px; }
+.period-badge { flex: none; box-shadow: 0 5px 16px rgba(30, 41, 59, .04); }
+.panel {
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(30, 41, 59, .045);
+}
+.chart-card { padding: 20px; }
+.panel-heading h2 { font-size: 1rem; }
+.panel-heading p { font-size: var(--text-sm); }
+.filter-field { font-size: var(--text-sm); }
+.filter-field input,
+.filter-field select,
+.policy-form input,
+.policy-form select,
+.policy-form textarea,
+.policy-login-form input,
+.policy-follow-up select,
+.policy-follow-up textarea,
+.announcement-field input,
+.announcement-field select,
+.announcement-field textarea,
+.login-form input {
+  min-height: 42px;
+  font-size: var(--text-base);
+}
+.policy-form textarea,
+.policy-follow-up textarea,
+.announcement-field textarea { min-height: 100px; }
+.policy-form label,
+.policy-login-form label,
+.policy-follow-up label { font-size: var(--text-sm); }
+.team-card h2 { font-size: 1.0625rem; }
+.team-card p,
+.team-footer-card p,
+.team-heading p { font-size: var(--text-sm); }
+.team-role { font-size: var(--text-xs); }
+.announcement-card h3 { font-size: 1.0625rem; }
+.announcement-card > p { font-size: var(--text-base); line-height: 1.65; }
+.announcement-card-tags span { font-size: var(--text-xs); }
+.announcement-form-actions > span,
+.announcement-list-heading > span { font-size: var(--text-sm); }
+.login-description { color: var(--text-secondary); font-size: var(--text-base); }
+.login-demo > span,
+.login-demo-grid button { font-size: var(--text-sm); }
+.login-card { border-radius: 20px; box-shadow: 0 20px 55px rgba(35, 57, 88, .1); }
+button,
+a,
+input,
+select,
+textarea { transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease, color .18s ease; }
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(79, 70, 229, .28);
+  outline-offset: 2px;
+}
+@media (max-width: 1380px) {
+  .topbar .responsive-action-menu__desktop { display: none; }
+  .topbar .responsive-action-menu__mobile { display: block; }
+  .topbar .responsive-action-menu__panel {
+    position: fixed;
+    top: 76px;
+    right: 16px;
+    max-height: calc(100dvh - 92px);
+    overflow-y: auto;
+  }
+}
+
 @media (max-width: 900px) {
   .welcome-hero { min-height: 540px; padding-inline: 6%; }
   .welcome-hero-art { width: min(100%, 495px); }
@@ -715,6 +832,22 @@ button { cursor: pointer; font-size: var(--text-sm); }
   .team-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
 @media (max-width: 620px) {
+  .page-heading { align-items: stretch; flex-direction: column; padding: 18px; }
+  .page-heading h1 { font-size: clamp(1.75rem, 7vw, 2.25rem); }
+  .period-badge { align-self: flex-start; }
+  .chart-card { padding: 16px; }
+  .topbar { flex-wrap: nowrap; padding-inline: 16px; }
+  .topbar-meta { gap: 6px; }
+  .topbar .responsive-action-menu__mobile { display: block; }
+  .topbar .responsive-action-menu__mobile summary span { display: none; }
+  .topbar .responsive-action-menu__mobile summary { width: 42px; padding-inline: 0; }
+  .topbar .responsive-action-menu__panel { position: fixed; top: 68px; right: 12px; }
+  .login-header { min-height: 64px; gap: 10px; padding-inline: 16px; }
+  .login-back-button { width: 38px; height: 38px; justify-content: center; padding: 0; overflow: hidden; font-size: 0; }
+  .login-back-button svg { flex: none; }
+  .login-brand { margin-left: auto; }
+  .login-brand small { display: none; }
+  .team-nav { flex-wrap: nowrap; }
   .announcement-list { grid-template-columns: 1fr; }
   .welcome-nav { min-height: 66px; gap: 7px; padding: 0 14px; }
   .welcome-brand-mark { width: 35px; height: 35px; }
@@ -806,6 +939,13 @@ button { cursor: pointer; font-size: var(--text-sm); }
   .announcement-card-top { align-items: flex-start; }
 }
 @media (max-width: 400px) {
+  .topbar { padding-inline: 10px; }
+  .topbar .brand { gap: 7px; }
+  .topbar .brand-mark { width: 32px; height: 32px; }
+  .topbar .brand strong { font-size: 0.75rem; letter-spacing: .04em; }
+  .topbar-meta { gap: 4px; }
+  .topbar .topbar-login-button,
+  .topbar .export-button { width: 36px; min-width: 36px; justify-content: center; padding-inline: 0; font-size: 0; }
   .welcome-brand small { display: none; }
   .welcome-nav { gap: 5px; padding-inline: 10px; }
   .welcome-nav .responsive-action-menu__mobile summary { width: 40px; padding-inline: 0; }

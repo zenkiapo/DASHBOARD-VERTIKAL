@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import {
   ArrowLeft,
+  BarChart3,
   BellRing,
   CalendarDays,
+  ClipboardList,
+  Home,
   LogIn,
   LogOut,
   Megaphone,
@@ -10,6 +13,7 @@ import {
   Plus,
   Save,
   Trash2,
+  Users,
   X,
 } from "lucide-react";
 import {
@@ -203,10 +207,10 @@ export function AnnouncementPage({
         <ResponsiveActionMenu
           ariaLabel="Navigasi halaman"
           actions={[
-            { label: "Beranda", onSelect: onBack },
-            { label: "Dashboard", onSelect: onOpenDashboard },
-            { label: "Rencana RTL", onSelect: onOpenRtl },
-            { label: "Tim Pengembang", onSelect: onOpenTeam },
+            { label: "Beranda", onSelect: onBack, icon: Home },
+            { label: "Dashboard", onSelect: onOpenDashboard, icon: BarChart3 },
+            { label: "Rencana RTL", onSelect: onOpenRtl, icon: ClipboardList },
+            { label: "Tim Pengembang", onSelect: onOpenTeam, icon: Users },
           ]}
         />
       </header>

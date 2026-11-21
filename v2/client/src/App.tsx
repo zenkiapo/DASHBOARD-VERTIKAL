@@ -86,6 +86,7 @@ export default function App() {
           onOpenLogin={() => navigate("login")}
           onOpenRtl={() => navigate("rtl")}
           onOpenAnnouncement={() => navigate("announcement")}
+          onOpenTeam={() => navigate("team")}
         />
       </Suspense>
     );
