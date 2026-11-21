@@ -6,8 +6,9 @@ import {
   Camera,
   CalendarDays,
   ChartNoAxesCombined,
+  ChevronLeft,
+  ChevronRight,
   ClipboardList,
-  Megaphone,
   ExternalLink,
   Heart,
   Moon,
@@ -16,8 +17,10 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { galleryItems, type GalleryItem } from "../data/galleryItems";
+import { ProgressiveDisclosureCard } from "./ProgressiveDisclosureCard";
+import { ResponsiveActionMenu } from "./ResponsiveActionMenu";
 
 interface WelcomePageProps {
   onOpenDashboard: () => void;
@@ -105,7 +108,7 @@ function GalleryMedia({
           className={imageLoaded ? "is-loaded" : ""}
           src={item.imageUrl}
           alt={item.title}
-          loading="lazy"
+          loading={large ? "eager" : "lazy"}
           decoding="async"
           onLoad={() => setImageLoaded(true)}
           onError={() => {
@@ -134,13 +137,48 @@ export function WelcomePage({
   const [selectedGalleryItem, setSelectedGalleryItem] =
     useState<GalleryItem | null>(null);
   const galleryDialogRef = useRef<HTMLDialogElement>(null);
+  const selectedGalleryIndex = selectedGalleryItem
+    ? galleryItems.findIndex((item) => item.id === selectedGalleryItem.id)
+    : -1;
 
   useEffect(() => {
     const dialog = galleryDialogRef.current;
     if (selectedGalleryItem && dialog && !dialog.open) dialog.showModal();
   }, [selectedGalleryItem]);
 
-  const closeGalleryDialog = () => galleryDialogRef.current?.close();
+  const closeGalleryDialog = useCallback(
+    () => galleryDialogRef.current?.close(),
+    [],
+  );
+  const navigateGallery = useCallback((step: number) => {
+    setSelectedGalleryItem((current) => {
+      if (!current || galleryItems.length === 0) return current;
+      const currentIndex = galleryItems.findIndex((item) => item.id === current.id);
+      const nextIndex =
+        (currentIndex + step + galleryItems.length) % galleryItems.length;
+      return galleryItems[nextIndex];
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!selectedGalleryItem) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeGalleryDialog();
+      } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        navigateGallery(-1);
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        navigateGallery(1);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [closeGalleryDialog, navigateGallery, selectedGalleryItem]);
 
   return (
     <main className="welcome-page">
@@ -154,43 +192,27 @@ export function WelcomePage({
             <small>SMAVO · Tumbuh bersama kebiasaan baik</small>
           </span>
         </a>
-        <nav className="welcome-links" aria-label="Navigasi utama">
-          <a href="#tentang">Tentang 7 KAIH</a>
-          <a href="#kebiasaan">7 Kebiasaan</a>
-          <a href="#galeri">Galeri</a>
-          <button
-            aria-label="Buka halaman Rencana RTL"
-            className="welcome-team-link"
-            onClick={onOpenRtl}
-            type="button"
-          >
-            <ClipboardList aria-hidden="true" size={14} />
-            <span>Rencana RTL</span>
-          </button>
-          <button
-            aria-label="Buka halaman Pengumuman"
-            className="welcome-team-link"
-            onClick={onOpenAnnouncement}
-            type="button"
-          >
-            <Megaphone aria-hidden="true" size={14} />
-            <span>Pengumuman</span>
-          </button>
-          <button
-            aria-label="Buka halaman Tim Pengembang"
-            className="welcome-team-link"
-            onClick={onOpenTeam}
-            type="button"
-          >
-            <Users aria-hidden="true" size={14} />
-            <span>Tim Pengembang</span>
-          </button>
-        </nav>
+        <ResponsiveActionMenu
+          ariaLabel="Navigasi utama"
+          actions={[
+            { label: "Tentang 7 KAIH", href: "#tentang" },
+            { label: "7 Kebiasaan", href: "#kebiasaan" },
+            { label: "Galeri", href: "#galeri" },
+            { label: "Rencana RTL", onSelect: onOpenRtl },
+            { label: "Pengumuman", onSelect: onOpenAnnouncement },
+            { label: "Tim Pengembang", onSelect: onOpenTeam },
+          ]}
+        />
         <div className="welcome-nav-actions">
           <button className="welcome-login-link" onClick={onOpenLogin} type="button">
             Masuk
           </button>
-          <button className="welcome-nav-cta" onClick={onOpenDashboard} type="button">
+          <button
+            aria-label="Buka dashboard"
+            className="welcome-nav-cta"
+            onClick={onOpenDashboard}
+            type="button"
+          >
             <span>Buka dashboard</span><ArrowRight size={15} />
           </button>
         </div>
@@ -270,32 +292,58 @@ export function WelcomePage({
           </p>
         </div>
         <div className="methodology-grid">
-          <article className="method-card">
-            <span className="method-icon"><ClipboardList size={19} /></span>
-            <span className="method-value">35 <small>pernyataan</small></span>
-            <h3>Instrumen terstruktur</h3>
-            <p>Instrumen terdiri atas 35 pernyataan: 5 pernyataan untuk setiap kebiasaan.</p>
-          </article>
-          <article className="method-card">
-            <span className="method-icon"><ChartNoAxesCombined size={19} /></span>
-            <span className="method-value">4 <small>pilihan</small></span>
-            <h3>Skala Likert</h3>
-            <p>Frekuensi perilaku dicatat secara konsisten dari Tidak Pernah hingga Selalu.</p>
-            <div className="likert-pills">
-              <span>1 · Tidak Pernah</span><span>2 · Jarang</span>
-              <span>3 · Sering</span><span>4 · Selalu</span>
-            </div>
-          </article>
-          <article className="method-card method-period">
-            <span className="method-icon"><CalendarDays size={19} /></span>
-            <span className="method-value">4 <small>checkpoint</small></span>
-            <h3>Pemantauan berkala</h3>
-            <p>Rangkaian pengukuran dua pekan untuk melihat pola dan perubahan, bukan hanya satu potret.</p>
-            <div className="checkpoint-list">
-              <span><b>01</b> 4 Nov</span><span><b>02</b> 6 Nov</span>
-              <span><b>03</b> 9 Nov</span><span><b>04</b> 12 Nov 2026</span>
-            </div>
-          </article>
+          <ProgressiveDisclosureCard
+            className="method-card"
+            details={<p>Instrumen terdiri atas 35 pernyataan: 5 pernyataan untuk setiap kebiasaan.</p>}
+            label="Instrumen terstruktur"
+            summary={
+              <>
+                <span className="method-icon"><ClipboardList size={19} /></span>
+                <span className="method-value">35 <small>pernyataan</small></span>
+                <h3>Instrumen terstruktur</h3>
+              </>
+            }
+          />
+          <ProgressiveDisclosureCard
+            className="method-card"
+            details={
+              <>
+                <p>Frekuensi perilaku dicatat secara konsisten dari Tidak Pernah hingga Selalu.</p>
+                <div className="likert-pills">
+                  <span>1 · Tidak Pernah</span><span>2 · Jarang</span>
+                  <span>3 · Sering</span><span>4 · Selalu</span>
+                </div>
+              </>
+            }
+            label="Skala Likert"
+            summary={
+              <>
+                <span className="method-icon"><ChartNoAxesCombined size={19} /></span>
+                <span className="method-value">4 <small>pilihan</small></span>
+                <h3>Skala Likert</h3>
+              </>
+            }
+          />
+          <ProgressiveDisclosureCard
+            className="method-card method-period"
+            details={
+              <>
+                <p>Rangkaian pengukuran dua pekan untuk melihat pola dan perubahan, bukan hanya satu potret.</p>
+                <div className="checkpoint-list">
+                  <span><b>01</b> 4 Nov</span><span><b>02</b> 6 Nov</span>
+                  <span><b>03</b> 9 Nov</span><span><b>04</b> 12 Nov 2026</span>
+                </div>
+              </>
+            }
+            label="Pemantauan berkala"
+            summary={
+              <>
+                <span className="method-icon"><CalendarDays size={19} /></span>
+                <span className="method-value">4 <small>checkpoint</small></span>
+                <h3>Pemantauan berkala</h3>
+              </>
+            }
+          />
         </div>
         <div className="method-footer">
           <span className="method-footer-mark"><Users size={17} /></span>
@@ -320,43 +368,74 @@ export function WelcomePage({
         </div>
         <div className="welcome-habit-grid">
           {habits.map(({ title, icon: Icon, note, detail }, index) => (
-            <article className="welcome-habit-card" key={title}>
-              <span className="habit-number">{String(index + 1).padStart(2, "0")}</span>
-              <span className="habit-icon"><Icon size={20} /></span>
-              <h3>{title}</h3>
-              <p>{note}</p>
-              <p className="habit-detail">{detail}</p>
-            </article>
+            <ProgressiveDisclosureCard
+              className="welcome-habit-card"
+              details={<p className="habit-detail">{detail}</p>}
+              key={title}
+              label={title}
+              summary={
+                <>
+                  <span className="habit-number">{String(index + 1).padStart(2, "0")}</span>
+                  <span className="habit-icon"><Icon size={20} /></span>
+                  <h3>{title}</h3>
+                  <p>{note}</p>
+                </>
+              }
+            />
           ))}
         </div>
         <div className="habit-context-grid">
-          <article className="habit-context-card">
-            <span className="welcome-section-kicker">URGENSI</span>
-            <h3>Kebiasaan kecil membentuk kesiapan sehari-hari.</h3>
-            <p>
-              7 KAIH menghubungkan rutinitas dari pagi hingga malam. Di SMAVO,
-              pembiasaan ini menjadi ajakan yang konsisten bagi siswa, keluarga,
-              dan sekolah untuk saling mendukung tumbuh kembang yang sehat.
-            </p>
-          </article>
-          <article className="habit-context-card">
-            <span className="welcome-section-kicker">MONITORING</span>
-            <h3>Empat checkpoint memberi konteks perubahan.</h3>
-            <p>
-              Sebanyak 35 pernyataan, lima untuk setiap kebiasaan, dicatat dengan
-              skala Likert 1–4 pada empat pengukuran selama dua pekan. Ringkasan
-              dapat dibaca menurut jenjang, jenis kelamin, dan periode.
-            </p>
-          </article>
-          <article className="habit-context-card">
-            <span className="welcome-section-kicker">VERTIKAL SMA 2026</span>
-            <h3>Data menjadi bahan refleksi dan tindak lanjut.</h3>
-            <p>
-              Dashboard membantu warga sekolah mengenali kebiasaan yang sudah
-              kuat dan area prioritas, lalu merencanakan dukungan yang relevan.
-              Angka dibaca sebagai gambaran agregat, bukan penilaian individu.
-            </p>
-          </article>
+          <ProgressiveDisclosureCard
+            className="habit-context-card"
+            details={
+              <p>
+                7 KAIH menghubungkan rutinitas dari pagi hingga malam. Di SMAVO,
+                pembiasaan ini menjadi ajakan yang konsisten bagi siswa, keluarga,
+                dan sekolah untuk saling mendukung tumbuh kembang yang sehat.
+              </p>
+            }
+            label="Urgensi kebiasaan"
+            summary={
+              <>
+                <span className="welcome-section-kicker">URGENSI</span>
+                <h3>Kebiasaan kecil membentuk kesiapan sehari-hari.</h3>
+              </>
+            }
+          />
+          <ProgressiveDisclosureCard
+            className="habit-context-card"
+            details={
+              <p>
+                Sebanyak 35 pernyataan, lima untuk setiap kebiasaan, dicatat dengan
+                skala Likert 1–4 pada empat pengukuran selama dua pekan. Ringkasan
+                dapat dibaca menurut jenjang, jenis kelamin, dan periode.
+              </p>
+            }
+            label="Konteks monitoring"
+            summary={
+              <>
+                <span className="welcome-section-kicker">MONITORING</span>
+                <h3>Empat checkpoint memberi konteks perubahan.</h3>
+              </>
+            }
+          />
+          <ProgressiveDisclosureCard
+            className="habit-context-card"
+            details={
+              <p>
+                Dashboard membantu warga sekolah mengenali kebiasaan yang sudah
+                kuat dan area prioritas, lalu merencanakan dukungan yang relevan.
+                Angka dibaca sebagai gambaran agregat, bukan penilaian individu.
+              </p>
+            }
+            label="Konteks VERTIKAL SMA 2026"
+            summary={
+              <>
+                <span className="welcome-section-kicker">VERTIKAL SMA 2026</span>
+                <h3>Data menjadi bahan refleksi dan tindak lanjut.</h3>
+              </>
+            }
+          />
         </div>
       </section>
 
@@ -413,16 +492,35 @@ export function WelcomePage({
             <div className={`gallery-dialog-media ${selectedGalleryItem.sceneClass}`}>
               <GalleryMedia
                 item={selectedGalleryItem}
-                number={galleryItems.findIndex(
-                  (item) => item.id === selectedGalleryItem.id,
-                ) + 1}
+                number={selectedGalleryIndex + 1}
                 large
               />
+              <button
+                aria-label="Foto sebelumnya"
+                className="gallery-dialog-nav gallery-dialog-prev"
+                onClick={() => navigateGallery(-1)}
+                type="button"
+              >
+                <ChevronLeft aria-hidden="true" size={22} />
+              </button>
+              <button
+                aria-label="Foto berikutnya"
+                className="gallery-dialog-nav gallery-dialog-next"
+                onClick={() => navigateGallery(1)}
+                type="button"
+              >
+                <ChevronRight aria-hidden="true" size={22} />
+              </button>
             </div>
             <div className="gallery-dialog-copy">
-              <span className="welcome-section-kicker">
-                {selectedGalleryItem.category}
-              </span>
+              <div className="gallery-dialog-caption-header">
+                <span className="welcome-section-kicker">
+                  {selectedGalleryItem.category}
+                </span>
+                <span className="gallery-dialog-counter" aria-live="polite">
+                  {selectedGalleryIndex + 1} / {galleryItems.length}
+                </span>
+              </div>
               <h2 id="gallery-dialog-title">{selectedGalleryItem.title}</h2>
               {selectedGalleryItem.period && (
                 <span className="gallery-dialog-period">
