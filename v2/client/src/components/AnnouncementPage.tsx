@@ -28,6 +28,7 @@ import type {
   AnnouncementPriority,
 } from "../types/announcements";
 import type { AuthSession, UserRole } from "../types/policyNotes";
+import { ResponsiveActionMenu } from "./ResponsiveActionMenu";
 
 interface AnnouncementPageProps {
   onBack: () => void;
@@ -199,12 +200,15 @@ export function AnnouncementPage({
           <span className="brand-mark"><img src="https://sman2cibinong.sch.id/images/logo.png" alt="" /></span>
           <span><strong>SMAN 2 CIBINONG</strong><small>Pengumuman 7 KAIH</small></span>
         </button>
-        <nav className="rtl-top-nav" aria-label="Navigasi halaman">
-          <button type="button" onClick={onBack}>Beranda</button>
-          <button type="button" onClick={onOpenDashboard}>Dashboard</button>
-          <button type="button" onClick={onOpenRtl}>Rencana RTL</button>
-          <button type="button" onClick={onOpenTeam}>Tim Pengembang</button>
-        </nav>
+        <ResponsiveActionMenu
+          ariaLabel="Navigasi halaman"
+          actions={[
+            { label: "Beranda", onSelect: onBack },
+            { label: "Dashboard", onSelect: onOpenDashboard },
+            { label: "Rencana RTL", onSelect: onOpenRtl },
+            { label: "Tim Pengembang", onSelect: onOpenTeam },
+          ]}
+        />
       </header>
 
       <div className="dashboard-content rtl-content announcement-content">

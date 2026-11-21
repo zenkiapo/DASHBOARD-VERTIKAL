@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, Camera, ClipboardList, Megaphone, Users } from "lucide-react";
+import { ArrowLeft, ArrowRight, Camera, Users } from "lucide-react";
+import { ResponsiveActionMenu } from "./ResponsiveActionMenu";
 
 interface TeamPageProps {
   onBack: () => void;
@@ -126,15 +127,14 @@ export function TeamPage({
           <Users aria-hidden="true" size={15} />
           Tim Pengembang
         </span>
-        <button aria-label="Buka Rencana RTL" className="rtl-nav-button" onClick={onOpenRtl} type="button">
-          <ClipboardList size={14} /> Rencana RTL
-        </button>
-        <button aria-label="Buka Pengumuman" className="rtl-nav-button" onClick={onOpenAnnouncement} type="button">
-          <Megaphone size={14} /> Pengumuman
-        </button>
-        <button className="welcome-nav-cta" onClick={onOpenDashboard} type="button">
-          <span>Buka dashboard</span><ArrowRight size={15} />
-        </button>
+        <ResponsiveActionMenu
+          ariaLabel="Navigasi halaman"
+          actions={[
+            { label: "Rencana RTL", onSelect: onOpenRtl },
+            { label: "Pengumuman", onSelect: onOpenAnnouncement },
+            { label: "Buka dashboard", onSelect: onOpenDashboard },
+          ]}
+        />
       </header>
 
       <div className="team-content">

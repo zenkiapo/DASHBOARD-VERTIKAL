@@ -25,6 +25,7 @@ import type { AuthSession, NoteStatus, UserRole } from "../types/policyNotes";
 import type { RtlPlanDTO, RtlPlanDraft } from "../types/rtl";
 import { ChartCard } from "./ChartCard";
 import { PeriodComparison as PeriodComparisonPanel } from "./PeriodComparison";
+import { ResponsiveActionMenu } from "./ResponsiveActionMenu";
 
 interface RtlPageProps {
   onBack: () => void;
@@ -319,12 +320,15 @@ export function RtlPage({
           <span className="brand-mark"><img src="https://sman2cibinong.sch.id/images/logo.png" alt="" /></span>
           <span><strong>SMAN 2 CIBINONG</strong><small>Rencana Tindak Lanjut</small></span>
         </button>
-        <nav className="rtl-top-nav" aria-label="Navigasi halaman">
-          <button type="button" onClick={onBack}>Beranda</button>
-          <button type="button" onClick={onOpenDashboard}>Dashboard</button>
-          <button type="button" onClick={onOpenTeam}>Tim Pengembang</button>
-          <button type="button" onClick={onOpenAnnouncement}>Pengumuman</button>
-        </nav>
+        <ResponsiveActionMenu
+          ariaLabel="Navigasi halaman"
+          actions={[
+            { label: "Beranda", onSelect: onBack },
+            { label: "Dashboard", onSelect: onOpenDashboard },
+            { label: "Tim Pengembang", onSelect: onOpenTeam },
+            { label: "Pengumuman", onSelect: onOpenAnnouncement },
+          ]}
+        />
       </header>
 
       <div className="dashboard-content rtl-content">
