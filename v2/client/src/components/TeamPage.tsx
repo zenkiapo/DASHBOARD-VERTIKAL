@@ -121,8 +121,8 @@ export function TeamPage({
 
   return (
     <main className="team-page">
-      <header className="welcome-nav team-nav">
-        <button className="welcome-brand team-brand" onClick={onBack} type="button">
+      <header className="topbar team-nav">
+        <button className="brand team-brand" onClick={onBack} type="button" aria-label="Kembali ke beranda">
           <span className="welcome-brand-mark">
             <img src="https://sman2cibinong.sch.id/images/logo.png" alt="" />
           </span>
@@ -131,10 +131,6 @@ export function TeamPage({
             <small>SMAVO · VERTIKAL SMA 2026</small>
           </span>
         </button>
-        <span className="team-nav-label">
-          <Users aria-hidden="true" size={15} />
-          Tim Pengembang
-        </span>
         <ResponsiveActionMenu
           ariaLabel="Navigasi halaman"
           actions={[
@@ -143,6 +139,10 @@ export function TeamPage({
             { label: "Buka dashboard", onSelect: onOpenDashboard, icon: BarChart3 },
           ]}
         />
+        <span className="team-nav-label">
+          <Users aria-hidden="true" size={15} />
+          Tim Pengembang
+        </span>
       </header>
 
       <div className="team-content">

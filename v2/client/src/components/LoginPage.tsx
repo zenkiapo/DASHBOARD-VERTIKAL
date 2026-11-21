@@ -1,10 +1,24 @@
 import { useState, type FormEvent } from "react";
-import { ArrowLeft, LogIn, ShieldCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  BarChart3,
+  ClipboardList,
+  Home,
+  LogIn,
+  Megaphone,
+  ShieldCheck,
+  Users,
+} from "lucide-react";
 import { loginAsDemo, loginWithPassword } from "../lib/policyNotesApi";
 import type { UserRole } from "../types/policyNotes";
+import { ResponsiveActionMenu } from "./ResponsiveActionMenu";
 
 interface LoginPageProps {
   onBack: () => void;
+  onOpenDashboard: () => void;
+  onOpenAnnouncement: () => void;
+  onOpenRtl: () => void;
+  onOpenTeam: () => void;
   onLoginComplete: () => void;
 }
 
@@ -16,7 +30,14 @@ const demoRoles: Array<{ role: UserRole; label: string }> = [
   { role: "ADMIN", label: "Admin" },
 ];
 
-export function LoginPage({ onBack, onLoginComplete }: LoginPageProps) {
+export function LoginPage({
+  onBack,
+  onOpenDashboard,
+  onOpenAnnouncement,
+  onOpenRtl,
+  onOpenTeam,
+  onLoginComplete,
+}: LoginPageProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -52,14 +73,28 @@ export function LoginPage({ onBack, onLoginComplete }: LoginPageProps) {
 
   return (
     <main className="login-page">
-      <header className="login-header">
-        <button className="login-back-button" onClick={onBack} type="button">
-          <ArrowLeft size={16} /> Kembali ke beranda
-        </button>
+      <header className="login-header topbar">
         <span className="login-brand">
           <img src="https://sman2cibinong.sch.id/images/logo.png" alt="" />
           <span><strong>SMAN 2 CIBINONG</strong><small>SMAVO · VERTIKAL SMA 2026</small></span>
         </span>
+        <div className="login-nav">
+          <ResponsiveActionMenu
+            ariaLabel="Navigasi halaman"
+            actions={[
+              { label: "Beranda", onSelect: onBack, icon: Home },
+              { label: "Dashboard", onSelect: onOpenDashboard, icon: BarChart3 },
+              { label: "Pengumuman", onSelect: onOpenAnnouncement, icon: Megaphone },
+            ]}
+            secondaryActions={[
+              { label: "Rencana RTL", onSelect: onOpenRtl, icon: ClipboardList },
+              { label: "Tim Pengembang", onSelect: onOpenTeam, icon: Users },
+            ]}
+          />
+        </div>
+        <button className="login-back-button" onClick={onBack} type="button">
+          <ArrowLeft size={16} /> Kembali ke beranda
+        </button>
       </header>
       <section className="login-card">
         <span className="login-icon"><ShieldCheck size={22} /></span>

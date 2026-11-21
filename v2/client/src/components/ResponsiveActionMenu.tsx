@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { ChevronDown, Menu, type LucideIcon } from "lucide-react";
+import { ChevronDown, Menu, MoreHorizontal, type LucideIcon } from "lucide-react";
 
 type ResponsiveAction = (
   | { label: string; href: string; onSelect?: never }
@@ -27,38 +27,47 @@ export function ResponsiveActionMenu({
     const Icon = action.icon;
     if (action.href !== undefined) {
       return (
-        <a href={action.href} key={action.label} onClick={closeMenus}>
+        <a
+          aria-label={action.label}
+          href={action.href}
+          key={action.label}
+          onClick={closeMenus}
+          title={action.label}
+        >
           {Icon && <Icon aria-hidden="true" className="responsive-action-menu__icon" size={16} />}
-          <span>{action.label}</span>
+          <span className="responsive-action-menu__label">{action.label}</span>
         </a>
       );
     }
 
     return (
       <button
+        aria-label={action.label}
         key={action.label}
         onClick={() => {
           action.onSelect();
           closeMenus();
         }}
+        title={action.label}
         type="button"
       >
         {Icon && <Icon aria-hidden="true" className="responsive-action-menu__icon" size={16} />}
-        <span>{action.label}</span>
+        <span className="responsive-action-menu__label">{action.label}</span>
       </button>
     );
   };
 
   return (
-    <>
+    <div className="responsive-action-menu">
       <nav className="responsive-action-menu__desktop" aria-label={ariaLabel}>
         {actions.map(renderAction)}
       </nav>
       {secondaryActions.length > 0 && (
         <details className="responsive-action-menu__more" ref={moreMenuRef}>
-          <summary>
-            <span>Lainnya</span>
-            <ChevronDown aria-hidden="true" size={15} />
+          <summary aria-label="Lainnya" title="Lainnya">
+            <span className="responsive-action-menu__label">Lainnya</span>
+            <MoreHorizontal aria-hidden="true" className="responsive-action-menu__more-icon" size={18} />
+            <ChevronDown aria-hidden="true" className="responsive-action-menu__more-chevron" size={15} />
           </summary>
           <nav className="responsive-action-menu__panel" aria-label={`${ariaLabel} lainnya`}>
             {secondaryActions.map(renderAction)}
@@ -68,12 +77,12 @@ export function ResponsiveActionMenu({
       <details className="responsive-action-menu__mobile" ref={mobileMenuRef}>
         <summary aria-label={`Buka ${ariaLabel}`}>
           <Menu aria-hidden="true" size={18} />
-          <span>Menu</span>
+          <span className="responsive-action-menu__label">Menu</span>
         </summary>
         <nav className="responsive-action-menu__panel" aria-label={ariaLabel}>
           {[...actions, ...secondaryActions].map(renderAction)}
         </nav>
       </details>
-    </>
+    </div>
   );
 }

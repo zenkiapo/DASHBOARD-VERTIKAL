@@ -266,19 +266,19 @@ export function Dashboard({
             <small>Kembali ke beranda</small>
           </span>
         </button>
+        <ResponsiveActionMenu
+          ariaLabel="Navigasi halaman"
+          actions={[
+            { label: "Rencana RTL", onSelect: onOpenRtl, icon: ClipboardList },
+            { label: "Pengumuman", onSelect: onOpenAnnouncement, icon: Megaphone },
+            { label: "Tim Pengembang", onSelect: onOpenTeam, icon: Users },
+          ]}
+        />
         <div className="topbar-meta">
           <span className="live-dot" />
           <span>{summary ? "Google Sheets" : "Menunggu data"}</span>
           <span className="meta-divider" />
           <span>VERTIKAL SMA 2026</span>
-          <ResponsiveActionMenu
-            ariaLabel="Navigasi halaman"
-            actions={[
-              { label: "Rencana RTL", onSelect: onOpenRtl, icon: ClipboardList },
-              { label: "Pengumuman", onSelect: onOpenAnnouncement, icon: Megaphone },
-              { label: "Tim Pengembang", onSelect: onOpenTeam, icon: Users },
-            ]}
-          />
           {!session && !authLoading && (
             <button className="topbar-login-button" onClick={onOpenLogin} type="button">
               <LogIn size={14} /> Masuk

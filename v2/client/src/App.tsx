@@ -126,6 +126,10 @@ export default function App() {
     return (
       <LoginPage
         onBack={() => navigate("welcome")}
+        onOpenDashboard={() => navigate("dashboard")}
+        onOpenAnnouncement={() => navigate("announcement")}
+        onOpenRtl={() => navigate("rtl")}
+        onOpenTeam={() => navigate("team")}
         onLoginComplete={() => {
           const next = new URLSearchParams(window.location.search).get("next");
           navigate(safeReturnPage(next), true);
