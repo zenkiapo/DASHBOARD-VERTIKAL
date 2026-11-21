@@ -193,17 +193,21 @@ export function WelcomePage({
             <small>SMAVO · Tumbuh bersama kebiasaan baik</small>
           </span>
         </a>
-        <ResponsiveActionMenu
-          ariaLabel="Navigasi utama"
-          actions={[
-            { label: "Tentang 7 KAIH", href: "#tentang", icon: BookOpen },
-            { label: "7 Kebiasaan", href: "#kebiasaan", icon: Activity },
-            { label: "Galeri", href: "#galeri", icon: Camera },
-            { label: "Rencana RTL", onSelect: onOpenRtl, icon: ClipboardList },
-            { label: "Pengumuman", onSelect: onOpenAnnouncement, icon: Megaphone },
-            { label: "Tim Pengembang", onSelect: onOpenTeam, icon: Users },
-          ]}
-        />
+        <div className="welcome-nav-center">
+          <ResponsiveActionMenu
+            ariaLabel="Navigasi utama"
+            actions={[
+              { label: "7 KAIH", href: "#kebiasaan", icon: Activity },
+              { label: "Galeri", href: "#galeri", icon: Camera },
+              { label: "Rencana RTL", onSelect: onOpenRtl, icon: ClipboardList },
+              { label: "Pengumuman", onSelect: onOpenAnnouncement, icon: Megaphone },
+            ]}
+            secondaryActions={[
+              { label: "Tentang 7 KAIH", href: "#tentang", icon: BookOpen },
+              { label: "Tim Pengembang", onSelect: onOpenTeam, icon: Users },
+            ]}
+          />
+        </div>
         <div className="welcome-nav-actions">
           <button className="welcome-login-link" onClick={onOpenLogin} type="button">
             Masuk
