@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { dashboardSummaryController } from "../controllers/dashboardController.js";
-import { requireAuth } from "../middleware/auth.js";
+import { optionalAuth } from "../middleware/auth.js";
 
 const router = Router();
 
-router.get("/summary", requireAuth, dashboardSummaryController);
+router.get("/summary", optionalAuth, dashboardSummaryController);
 
 export default router;

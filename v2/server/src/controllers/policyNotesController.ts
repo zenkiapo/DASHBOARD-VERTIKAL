@@ -105,9 +105,22 @@ export const createPolicyNoteController: RequestHandler = async (
   try {
     const user = requireUser(request);
     if (!canCreatePolicyNote(user.role)) {
-      throw new ApiError("Hanya KEPSEK atau ADMIN yang dapat membuat catatan.", 403);
+      throw new ApiError("Role Anda tidak memiliki izin untuk membuat catatan.", 403);
     }
-    const fields = readNoteContentFields(readRecord(request.body));
+    const body = readRecord(request.body);
+    const allowedCreateKeys = new Set([
+      "habitCategory",
+      "targetScope",
+      "noteContent",
+    ]);
+    const unknownKey = Object.keys(body).find((key) => !allowedCreateKeys.has(key));
+    if (unknownKey) {
+      throw new ApiError(`Field ${unknownKey} tidak didukung.`, 400);
+    }
+    const fields = readNoteContentFields(body);
+    if (!canViewPolicyNote(user, fields.targetScope)) {
+      throw new ApiError("Target catatan di luar lingkup kelas binaan Anda.", 403);
+    }
     const note = await prisma.policyNote.create({
       data: { ...fields, authorId: user.id, status: NoteStatus.PENDING },
       include: noteInclude,
@@ -200,15 +213,15 @@ export const deletePolicyNoteController: RequestHandler = async (
 ) => {
   try {
     const user = requireUser(request);
-    if (!canUpdatePolicyContent(user.role)) {
-      throw new ApiError("Hanya KEPSEK atau ADMIN yang dapat menghapus catatan.", 403);
-    }
     const noteId = request.params.id;
     if (typeof noteId !== "string" || !noteId) {
       throw new ApiError("ID catatan tidak valid.", 400);
     }
     const existing = await prisma.policyNote.findUnique({ where: { id: noteId } });
     if (!existing) throw new ApiError("Catatan tidak ditemukan.", 404);
+    if (!canViewPolicyNote(user, existing.targetScope)) {
+      throw new ApiError("Catatan ini di luar lingkup kelas binaan Anda.", 403);
+    }
     await prisma.policyNote.delete({ where: { id: existing.id } });
     response.status(204).end();
   } catch (error) {

@@ -20,6 +20,8 @@ function readCredentials(body: unknown): { email: string; password: string } {
   if (
     typeof email !== "string" ||
     typeof password !== "string" ||
+    email.length > 254 ||
+    password.length > 128 ||
     !email.trim() ||
     !password
   ) {

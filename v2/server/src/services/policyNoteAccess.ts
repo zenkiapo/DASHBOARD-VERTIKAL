@@ -35,7 +35,12 @@ export function canViewPolicyNote(user: AuthUser, targetScope: string): boolean 
 }
 
 export function canCreatePolicyNote(role: Role): boolean {
-  return role === "KEPSEK" || role === "ADMIN";
+  return (
+    role === "KEPSEK" ||
+    role === "GURU_BK" ||
+    role === "WALI_KELAS" ||
+    role === "ADMIN"
+  );
 }
 
 export function canUpdatePolicyContent(role: Role): boolean {
@@ -43,7 +48,11 @@ export function canUpdatePolicyContent(role: Role): boolean {
 }
 
 export function canUpdatePolicyFollowUp(role: Role): boolean {
-  return role === "GURU_BK" || role === "ADMIN";
+  return (
+    role === "GURU_BK" ||
+    role === "WALI_KELAS" ||
+    role === "ADMIN"
+  );
 }
 
 export function isValidTargetScope(value: string): boolean {

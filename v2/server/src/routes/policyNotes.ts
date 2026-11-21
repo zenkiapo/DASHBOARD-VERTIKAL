@@ -15,12 +15,20 @@ router.get(
   authorizeRoles("KEPSEK", "GURU_BK", "WALI_KELAS", "ADMIN"),
   getPolicyNotesController,
 );
-router.post("/", authorizeRoles("KEPSEK", "ADMIN"), createPolicyNoteController);
+router.post(
+  "/",
+  authorizeRoles("KEPSEK", "GURU_BK", "WALI_KELAS", "ADMIN"),
+  createPolicyNoteController,
+);
 router.patch(
   "/:id",
-  authorizeRoles("KEPSEK", "GURU_BK", "ADMIN"),
+  authorizeRoles("KEPSEK", "GURU_BK", "WALI_KELAS", "ADMIN"),
   updatePolicyNoteController,
 );
-router.delete("/:id", authorizeRoles("KEPSEK", "ADMIN"), deletePolicyNoteController);
+router.delete(
+  "/:id",
+  authorizeRoles("KEPSEK", "GURU_BK", "WALI_KELAS", "ADMIN"),
+  deletePolicyNoteController,
+);
 
 export default router;

@@ -16,6 +16,7 @@ import {
 interface WelcomePageProps {
   onOpenDashboard: () => void;
   onOpenTeam: () => void;
+  onOpenLogin: () => void;
 }
 
 const habits = [
@@ -60,7 +61,7 @@ const gallery = [
   },
 ];
 
-export function WelcomePage({ onOpenDashboard, onOpenTeam }: WelcomePageProps) {
+export function WelcomePage({ onOpenDashboard, onOpenTeam, onOpenLogin }: WelcomePageProps) {
   return (
     <main className="welcome-page">
       <header className="welcome-nav">
@@ -85,6 +86,14 @@ export function WelcomePage({ onOpenDashboard, onOpenTeam }: WelcomePageProps) {
           >
             <Users aria-hidden="true" size={14} />
             <span>Tim Pengembang</span>
+          </button>
+          <button
+            aria-label="Masuk sebagai petugas"
+            className="welcome-team-link"
+            onClick={onOpenLogin}
+            type="button"
+          >
+            <span>Masuk</span>
           </button>
         </nav>
         <button className="welcome-nav-cta" onClick={onOpenDashboard} type="button">

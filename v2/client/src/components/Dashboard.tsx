@@ -6,6 +6,7 @@ import {
   Clock3,
   FileDown,
   GraduationCap,
+  LogIn,
   LogOut,
   RefreshCw,
 } from "lucide-react";
@@ -39,9 +40,10 @@ function formatUpdatedAt(date: Date): string {
 
 interface DashboardProps {
   onBack: () => void;
+  onOpenLogin: () => void;
 }
 
-export function Dashboard({ onBack }: DashboardProps) {
+export function Dashboard({ onBack, onOpenLogin }: DashboardProps) {
   const [filters, setFilters] = useState(emptyFilters);
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -92,12 +94,6 @@ export function Dashboard({ onBack }: DashboardProps) {
   }, []);
 
   useEffect(() => {
-    if (!sessionUserId) {
-      setLoading(false);
-      setSummary(null);
-      setError(null);
-      return;
-    }
     const controller = new AbortController();
     setLoading(true);
     setError(null);
@@ -275,15 +271,14 @@ export function Dashboard({ onBack }: DashboardProps) {
             <span className="loading-spinner" />
             <span>Memeriksa sesi...</span>
           </section>
-        ) : session ? (
+        ) : (
+          <>
           <FilterBar
             classFilterLocked={Boolean(lockedClass)}
             filters={filters}
             onChange={setFilters}
             onReset={resetFilters}
           />
-        ) : (
-          <>
             {authError && (
               <div className="error-banner" role="alert">
                 <AlertCircle size={19} />
@@ -296,9 +291,17 @@ export function Dashboard({ onBack }: DashboardProps) {
                 </button>
               </div>
             )}
-            <div className="policy-login-entry">
-              <PolicyNotesPanel onSessionChange={changeSession} session={session} />
-            </div>
+            {!session && (
+              <div className="dashboard-public-login">
+                <div>
+                  <strong>Anda melihat dashboard secara publik</strong>
+                  <span>Login diperlukan hanya untuk aksi terbatas dan catatan tindak lanjut.</span>
+                </div>
+                <button type="button" onClick={onOpenLogin}>
+                  <LogIn size={15} /> Masuk
+                </button>
+              </div>
+            )}
           </>
         )}
 
@@ -336,12 +339,12 @@ export function Dashboard({ onBack }: DashboardProps) {
           </div>
         )}
 
-        {session && loading && !summary ? (
+        {loading && !summary ? (
           <section className="loading-panel panel" aria-live="polite">
             <span className="loading-spinner" />
             <span>Mengambil ringkasan survei…</span>
           </section>
-        ) : session && summary ? (
+        ) : summary ? (
           <>
             <div className="section-caption">
               <div>

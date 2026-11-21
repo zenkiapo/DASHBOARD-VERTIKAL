@@ -104,6 +104,13 @@ const errorHandler: ErrorRequestHandler = (
     response.status(409).json({ error: "Data dengan nilai tersebut sudah ada." });
     return;
   }
+  if (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    (error.code === "P2003" || error.code === "P2025")
+  ) {
+    response.status(409).json({ error: "Data terkait tidak ditemukan atau tidak dapat diubah." });
+    return;
+  }
   console.error("[api] Unexpected request error", error);
   response.status(500).json({ error: "Terjadi kesalahan pada server." });
 };

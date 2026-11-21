@@ -75,8 +75,15 @@ function PolicyNoteCard({
   onError,
 }: PolicyNoteCardProps) {
   const canEditPolicy = session.user.role === "KEPSEK" || session.user.role === "ADMIN";
+  const canDeletePolicy =
+    session.user.role === "KEPSEK" ||
+    session.user.role === "GURU_BK" ||
+    session.user.role === "WALI_KELAS" ||
+    session.user.role === "ADMIN";
   const canUpdateFollowUp =
-    session.user.role === "GURU_BK" || session.user.role === "ADMIN";
+    session.user.role === "GURU_BK" ||
+    session.user.role === "WALI_KELAS" ||
+    session.user.role === "ADMIN";
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [content, setContent] = useState<PolicyNoteContent>({
@@ -139,25 +146,29 @@ function PolicyNoteCard({
             {NOTE_STATUS_LABELS[note.status]}
           </span>
         </div>
-        {canEditPolicy && !editing && (
+        {(canEditPolicy || canDeletePolicy) && !editing && (
           <div className="policy-note-actions">
-            <button
-              aria-label={`Edit catatan ${note.habitCategory}`}
-              className="policy-icon-button"
-              onClick={() => setEditing(true)}
-              type="button"
-            >
-              <Pencil size={14} />
-            </button>
-            <button
-              aria-label={`Hapus catatan ${note.habitCategory}`}
-              className="policy-icon-button policy-delete-button"
-              disabled={saving}
-              onClick={removeNote}
-              type="button"
-            >
-              <Trash2 size={14} />
-            </button>
+            {canEditPolicy && (
+              <button
+                aria-label={`Edit catatan ${note.habitCategory}`}
+                className="policy-icon-button"
+                onClick={() => setEditing(true)}
+                type="button"
+              >
+                <Pencil size={14} />
+              </button>
+            )}
+            {canDeletePolicy && (
+              <button
+                aria-label={`Hapus catatan ${note.habitCategory}`}
+                className="policy-icon-button policy-delete-button"
+                disabled={saving}
+                onClick={removeNote}
+                type="button"
+              >
+                <Trash2 size={14} />
+              </button>
+            )}
           </div>
         )}
       </header>
@@ -333,7 +344,10 @@ export function PolicyNotesPanel({
   };
 
   const canCreate =
-    session?.user.role === "KEPSEK" || session?.user.role === "ADMIN";
+    session?.user.role === "KEPSEK" ||
+    session?.user.role === "GURU_BK" ||
+    session?.user.role === "WALI_KELAS" ||
+    session?.user.role === "ADMIN";
 
   return (
     <ChartCard

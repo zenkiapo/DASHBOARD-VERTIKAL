@@ -27,11 +27,13 @@ test("wali kelas sees only their class, grade, and school-wide policy notes", ()
 
 test("policy write permissions are separated by role", () => {
   assert.equal(canCreatePolicyNote("KEPSEK"), true);
-  assert.equal(canCreatePolicyNote("GURU_BK"), false);
+  assert.equal(canCreatePolicyNote("GURU_BK"), true);
+  assert.equal(canCreatePolicyNote("WALI_KELAS"), true);
+  assert.equal(canCreatePolicyNote("ADMIN"), true);
   assert.equal(canUpdatePolicyContent("KEPSEK"), true);
   assert.equal(canUpdatePolicyContent("GURU_BK"), false);
   assert.equal(canUpdatePolicyFollowUp("GURU_BK"), true);
-  assert.equal(canUpdatePolicyFollowUp("WALI_KELAS"), false);
+  assert.equal(canUpdatePolicyFollowUp("WALI_KELAS"), true);
   assert.equal(canUpdatePolicyFollowUp("ADMIN"), true);
 });
 
