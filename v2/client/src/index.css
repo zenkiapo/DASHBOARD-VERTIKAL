@@ -457,15 +457,15 @@ button { cursor: pointer; font-size: var(--text-sm); }
 .welcome-brand strong { font-size: 0.8125rem; letter-spacing: .12em; }
 .welcome-brand small { margin-top: 4px; color: var(--muted); font-size: 0.8125rem; }
 .welcome-nav-center { position: absolute; top: 50%; left: 50%; display: flex; min-width: 0; align-items: center; transform: translate(-50%, -50%); }
-.welcome-nav .responsive-action-menu__desktop { flex: none; flex-wrap: nowrap; justify-content: center; gap: clamp(8px, 1vw, 14px); white-space: nowrap; }
-.welcome-nav .responsive-action-menu__desktop .responsive-action-menu__icon { display: none; }
+.welcome-nav .responsive-action-menu__desktop { flex: none; flex-wrap: nowrap; justify-content: center; gap: clamp(6px, .55vw, 8px); white-space: nowrap; }
+.welcome-nav .responsive-action-menu__desktop .responsive-action-menu__icon { display: inline-flex; width: 15px; }
 .welcome-nav .responsive-action-menu__desktop a,
-.welcome-nav .responsive-action-menu__desktop button { min-height: 40px; padding: 0 2px; color: var(--text-secondary); font-size: var(--text-sm); white-space: nowrap; }
+.welcome-nav .responsive-action-menu__desktop button { min-height: 40px; padding: 0 1px; color: var(--text-secondary); font-size: var(--text-sm); white-space: nowrap; }
 .welcome-nav .responsive-action-menu__desktop a:hover,
 .welcome-nav .responsive-action-menu__desktop button:hover { color: var(--accent-hover); }
 .welcome-nav .responsive-action-menu__desktop a { gap: 6px; }
 .welcome-nav .responsive-action-menu__icon { width: 15px; color: var(--accent); }
-.welcome-nav .responsive-action-menu__more { position: relative; justify-self: center; margin-left: 6px; padding-left: 10px; border-left: 1px solid var(--border); }
+.welcome-nav .responsive-action-menu__more { position: relative; justify-self: center; margin-left: 4px; padding-left: 7px; border-left: 1px solid var(--border); }
 .welcome-nav .responsive-action-menu__more summary {
   display: inline-flex;
   min-height: 40px;
@@ -483,12 +483,15 @@ button { cursor: pointer; font-size: var(--text-sm); }
 .welcome-nav .responsive-action-menu__more[open] summary,
 .welcome-nav .responsive-action-menu__more summary:hover { color: var(--accent-hover); }
 .welcome-nav .responsive-action-menu__more .responsive-action-menu__panel { top: calc(100% + 6px); }
-.welcome-nav-actions { display: flex; justify-self: end; align-items: center; gap: 12px; white-space: nowrap; }
+.welcome-nav-actions { display: flex; justify-self: end; align-items: center; gap: 8px; white-space: nowrap; }
 .welcome-login-link { padding: 9px 10px; border: 0; background: transparent; color: #53658a; font-size: var(--text-sm); font-weight: 700; }
 .welcome-login-link:hover { color: var(--accent-hover); }
-.welcome-nav-cta { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border: 0; border-radius: 8px; background: var(--accent-strong); color: white; font-size: var(--text-sm); font-weight: 700; }
+.welcome-nav-cta { display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px; border: 0; border-radius: 8px; background: var(--accent-strong); color: white; font-size: var(--text-sm); font-weight: 700; }
 .welcome-nav-cta:hover, .welcome-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
-@media (max-width: 1100px) {
+@media (max-width: 1350px) {
+  .welcome-brand small { display: none; }
+}
+@media (max-width: 1270px) {
   .welcome-nav .responsive-action-menu__desktop { display: none; }
   .welcome-nav .responsive-action-menu__more { display: none; }
   .welcome-nav .responsive-action-menu__mobile { display: block; }
