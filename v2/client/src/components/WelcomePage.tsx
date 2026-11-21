@@ -218,10 +218,19 @@ export function WelcomePage({
             <div><strong>1</strong><span>langkah lebih baik setiap hari</span></div>
           </div>
         </div>
-        <div className="welcome-hero-art" aria-hidden="true">
-          <img src="/gallery/optimized/hero-art.jpg" alt="Hero Art" />
-          <div className="hero-card hero-card-top"><Sunrise size={18} /><span>Mulai hari<br /><b>dengan semangat</b></span></div>
-          <div className="hero-card hero-card-bottom"><Heart size={17} /><span>Bangun kebiasaan,<br /><b>tumbuhkan karakter</b></span></div>
+        <div className="welcome-hero-art">
+          <img
+            src="/gallery/optimized/hero-art.jpg"
+            alt="Gedung utama SMAN 2 Cibinong"
+          />
+          <div className="hero-card hero-card-top">
+            <Sunrise size={18} />
+            <span>Mulai hari<br /><b>dengan semangat</b></span>
+          </div>
+          <div className="hero-card hero-card-bottom">
+            <Heart size={17} />
+            <span>Bangun kebiasaan,<br /><b>tumbuhkan karakter</b></span>
+          </div>
           <div className="hero-art-label">7 KAIH <span>SMAVO</span></div>
         </div>
         <div className="hero-scroll-cue"><span /> GULIR UNTUK MENJELAJAH</div>
