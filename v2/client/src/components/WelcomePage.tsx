@@ -219,7 +219,7 @@ export function WelcomePage({
           </div>
         </div>
         <div className="welcome-hero-art" aria-hidden="true">
-          <img src="/gallery/optimized/hero-art.png" alt="Hero Art" />
+          <img src="/gallery/optimized/hero-art.jpg" alt="Hero Art" />
           <div className="hero-card hero-card-top"><Sunrise size={18} /><span>Mulai hari<br /><b>dengan semangat</b></span></div>
           <div className="hero-card hero-card-bottom"><Heart size={17} /><span>Bangun kebiasaan,<br /><b>tumbuhkan karakter</b></span></div>
           <div className="hero-art-label">7 KAIH <span>SMAVO</span></div>
