@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   AlertCircle,
   ArrowLeft,
@@ -10,9 +10,15 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { fetchDashboardSummary } from "../lib/api";
+import { fetchRtlPlans } from "../lib/rtlApi";
 import { fetchCurrentSession, logoutCurrentSession } from "../lib/policyNotesApi";
-import type { DashboardFilters, DashboardSummary } from "../types/dashboard";
+import type {
+  DashboardFilters,
+  DashboardSummary,
+  PeriodComparison as PeriodComparisonData,
+} from "../types/dashboard";
 import type { AuthSession } from "../types/policyNotes";
+import type { RtlPlanDTO } from "../types/rtl";
 import { FilterBar } from "./FilterBar";
 import { KpiCards } from "./KpiCards";
 import { PolicyNotesPanel } from "./PolicyNotesPanel";
@@ -22,6 +28,7 @@ import { HabitPriorityBarChart } from "./charts/HabitPriorityBarChart";
 import { HabitRadarChart } from "./charts/HabitRadarChart";
 import { HabitTrendLineChart } from "./charts/HabitTrendLineChart";
 import { LikertDistributionChart } from "./charts/LikertDistributionChart";
+import { PeriodComparison } from "./PeriodComparison";
 
 const emptyFilters: DashboardFilters = {
   kelas: "",
@@ -39,9 +46,11 @@ function formatUpdatedAt(date: Date): string {
 
 interface DashboardProps {
   onBack: () => void;
+  onOpenRtl: () => void;
+  onOpenAnnouncement: () => void;
 }
 
-export function Dashboard({ onBack }: DashboardProps) {
+export function Dashboard({ onBack, onOpenRtl, onOpenAnnouncement }: DashboardProps) {
   const [filters, setFilters] = useState(emptyFilters);
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +62,10 @@ export function Dashboard({ onBack }: DashboardProps) {
   const [authError, setAuthError] = useState<string | null>(null);
   const [logoutError, setLogoutError] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [comparison, setComparison] = useState<PeriodComparisonData | null>(null);
+  const [rtlPlans, setRtlPlans] = useState<RtlPlanDTO[]>([]);
+  const [rtlPlansLoading, setRtlPlansLoading] = useState(false);
+  const [rtlPlansError, setRtlPlansError] = useState<string | null>(null);
   const sessionUserId = session?.user.id;
   const lockedClass =
     session?.user.role === "WALI_KELAS" ? session.user.assignedClass : null;
@@ -90,6 +103,38 @@ export function Dashboard({ onBack }: DashboardProps) {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    if (!sessionUserId || isStudent) {
+      setRtlPlans([]);
+      setRtlPlansLoading(false);
+      setRtlPlansError(null);
+      return () => {
+        active = false;
+      };
+    }
+    setRtlPlansLoading(true);
+    setRtlPlansError(null);
+    fetchRtlPlans()
+      .then((result) => {
+        if (active) setRtlPlans(result);
+      })
+      .catch((cause: unknown) => {
+        if (active) {
+          setRtlPlans([]);
+          setRtlPlansError(
+            cause instanceof Error ? cause.message : "RTL gagal dimuat.",
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setRtlPlansLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [sessionUserId, isStudent]);
 
   useEffect(() => {
     if (!sessionUserId) {
@@ -162,8 +207,17 @@ export function Dashboard({ onBack }: DashboardProps) {
         : {}),
     });
   const expectedClass = filters.rombel.trim() || filters.kelas || null;
+  const expectedComparisonClass = filters.rombel.trim() || filters.kelas || null;
+  const comparisonMatchesFilters =
+    comparison !== null &&
+    comparison.appliedFilters.kelas === expectedComparisonClass &&
+    comparison.appliedFilters.jenisKelamin === (filters.jenisKelamin || null) &&
+    !comparison.isStale;
   const canExport =
     !isStudent &&
+    !rtlPlansLoading &&
+    !rtlPlansError &&
+    comparisonMatchesFilters &&
     summary !== null &&
     !summary.isStale &&
     !loading &&
@@ -175,7 +229,7 @@ export function Dashboard({ onBack }: DashboardProps) {
     if (!summary || !canExport) return;
     try {
       const { exportDashboardReport } = await import("../lib/exportReport");
-      exportDashboardReport(summary);
+      exportDashboardReport(summary, { comparison, rtlPlans });
       setExportError(null);
     } catch (cause) {
       setExportError(
@@ -183,6 +237,10 @@ export function Dashboard({ onBack }: DashboardProps) {
       );
     }
   };
+  const updateComparison = useCallback(
+    (result: PeriodComparisonData | null) => setComparison(result),
+    [],
+  );
 
   return (
     <main className="dashboard-shell">
@@ -200,6 +258,12 @@ export function Dashboard({ onBack }: DashboardProps) {
           <span>{summary ? "Google Sheets" : "Menunggu data"}</span>
           <span className="meta-divider" />
           <span>VERTIKAL SMA 2026</span>
+          <button className="rtl-nav-button" onClick={onOpenRtl} type="button">
+            Rencana RTL
+          </button>
+          <button className="rtl-nav-button" onClick={onOpenAnnouncement} type="button">
+            Pengumuman
+          </button>
           {!isStudent && (
             <button
               className="export-button"
@@ -312,6 +376,16 @@ export function Dashboard({ onBack }: DashboardProps) {
             <button type="button" onClick={() => setExportError(null)}>Tutup</button>
           </div>
         )}
+        {rtlPlansError && (
+          <div className="error-banner" role="alert">
+            <AlertCircle size={19} />
+            <div>
+              <strong>Rencana RTL belum dimuat</strong>
+              <span>{rtlPlansError} PDF dinonaktifkan agar laporan tidak kehilangan bagian RTL.</span>
+            </div>
+            <button type="button" onClick={() => setRtlPlansError(null)}>Tutup</button>
+          </div>
+        )}
 
         {error && (
           <div className="error-banner" role="alert">
@@ -374,6 +448,13 @@ export function Dashboard({ onBack }: DashboardProps) {
                 <PolicyNotesPanel onSessionChange={changeSession} session={session} />
               )}
             </div>
+            {!isStudent && (
+              <PeriodComparison
+                enabled={Boolean(session)}
+                filters={filters}
+                onComparisonChange={updateComparison}
+              />
+            )}
           </>
         ) : session ? (
           !error && <div className="loading-panel panel">Menyiapkan dashboard…</div>

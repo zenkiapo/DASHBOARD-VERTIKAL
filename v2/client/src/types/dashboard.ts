@@ -72,6 +72,30 @@ export interface DashboardSummary {
   isStale?: boolean;
 }
 
+export interface PeriodComparisonHabit {
+  key: HabitKey;
+  habit: string;
+  fromScore: number | null;
+  toScore: number | null;
+  delta: number | null;
+  changePercent: number | null;
+  direction: "up" | "down" | "stable" | "unavailable";
+}
+
+export interface PeriodComparison {
+  fromPeriod: MeasurementPeriod;
+  toPeriod: MeasurementPeriod;
+  fromRespondents: number;
+  toRespondents: number;
+  habits: PeriodComparisonHabit[];
+  appliedFilters: {
+    kelas: string | null;
+    jenisKelamin: string | null;
+  };
+  dataSource: "mock" | "google-sheets";
+  isStale?: boolean;
+}
+
 export interface DashboardFilters {
   kelas: string;
   rombel: string;

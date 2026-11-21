@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { generateMockSurveyRecords } from "../data/mockData.js";
 import {
+  aggregatePeriodComparison,
   aggregateDashboardSummary,
   filterSurveyRecords,
   parseDashboardFilters,
@@ -270,6 +271,43 @@ test("summary honors class, gender, and period filters", () => {
   );
 });
 
+test("period comparison uses Google Sheets period scores and active demographic filters", () => {
+  const records = generateMockSurveyRecords();
+  const comparison = aggregatePeriodComparison(
+    records,
+    { kelas: "X-1", jenisKelamin: "Perempuan" },
+    1,
+    4,
+    "google-sheets",
+  );
+  const first = aggregateDashboardSummary(
+    records,
+    { kelas: "X-1", jenisKelamin: "Perempuan", periode: 1 },
+    "google-sheets",
+  );
+  const last = aggregateDashboardSummary(
+    records,
+    { kelas: "X-1", jenisKelamin: "Perempuan", periode: 4 },
+    "google-sheets",
+  );
+
+  assert.equal(comparison.fromRespondents, first.totalRespondents);
+  assert.equal(comparison.toRespondents, last.totalRespondents);
+  assert.equal(comparison.habits.length, 7);
+  comparison.habits.forEach((habit, index) => {
+    assert.equal(habit.fromScore, first.habits[index]?.score);
+    assert.equal(habit.toScore, last.habits[index]?.score);
+    assert.equal(
+      habit.delta,
+      habit.fromScore === null || habit.toScore === null
+        ? null
+        : Math.round((habit.toScore - habit.fromScore) * 100) / 100,
+    );
+  });
+  assert.equal(comparison.appliedFilters.kelas, "X-1");
+  assert.equal(comparison.dataSource, "google-sheets");
+});
+
 test("class filters distinguish a specific homeroom from a whole grade", () => {
   const records = generateMockSurveyRecords();
   const homeroom = filterSurveyRecords(records, {
@@ -297,14 +335,61 @@ test("filter parser supports the Indonesian checkpoint alias and rejects invalid
     { kelas: "X", jenisKelamin: "Perempuan", periode: 4 },
   );
   assert.throws(() => parseDashboardFilters({ periode: "5" }), /periode/);
+  assert.throws(
+    () => parseDashboardFilters({ kelas: "X".repeat(65) }),
+    /terlalu panjang/,
+  );
+  assert.throws(
+    () => parseDashboardFilters({ jenis_kelamin: "Laki\n-laki" }),
+    /karakter kontrol/,
+  );
+});
+
+test("Google Sheets refreshes are shared and fresh data is reused", async () => {
+  const previousUrl = process.env.GOOGLE_SHEETS_CSV_URL;
+  const originalFetch = globalThis.fetch;
+  let releaseFetch: () => void = () => {};
+  const gate = new Promise<void>((resolve) => {
+    releaseFetch = resolve;
+  });
+  let requestCount = 0;
+  process.env.GOOGLE_SHEETS_CSV_URL =
+    "https://docs.google.com/spreadsheets/d/example/export?format=csv&gid=0";
+  globalThis.fetch = async (input) => {
+    requestCount += 1;
+    await gate;
+    const url = new URL(String(input));
+    const csv = url.searchParams.get("sheet") === "Sheet3"
+      ? anonymousCsv(1)
+      : longFormCsv("2026-11-05 13:51:11.213");
+    return new Response(csv, { status: 200 });
+  };
+
+  try {
+    const firstRequest = getSurveyData();
+    const secondRequest = getSurveyData();
+    assert.equal(requestCount, 2);
+    releaseFetch();
+
+    const [first, second] = await Promise.all([firstRequest, secondRequest]);
+    assert.strictEqual(first, second);
+    assert.equal(requestCount, 2);
+    await getSurveyData();
+    assert.equal(requestCount, 2);
+  } finally {
+    releaseFetch();
+    globalThis.fetch = originalFetch;
+    if (previousUrl === undefined) {
+      delete process.env.GOOGLE_SHEETS_CSV_URL;
+    } else {
+      process.env.GOOGLE_SHEETS_CSV_URL = previousUrl;
+    }
+  }
 });
 
 test("summary includes seven habits, normalized Likert percentages, grades, and all trends", () => {
-  const summary = aggregateDashboardSummary(
-    generateMockSurveyRecords(),
-    noFilters,
-    "mock",
-  );
+  const records = generateMockSurveyRecords();
+  const summary = aggregateDashboardSummary(records, noFilters, "mock");
 
   assert.equal(summary.habits.length, 7);
   assert.equal(summary.gradeComparison.length, 7);
@@ -317,5 +402,20 @@ test("summary includes seven habits, normalized Likert percentages, grades, and 
     const percentage =
       point.tidakPernah + point.jarang + point.sering + point.selalu;
     assert.ok(Math.abs(percentage - 100) < 0.05);
+  }
+
+  for (const [grade, field] of [
+    ["X", "kelasX"],
+    ["XI", "kelasXI"],
+    ["XII", "kelasXII"],
+  ] as const) {
+    const gradeSummary = aggregateDashboardSummary(
+      records,
+      { ...noFilters, kelas: grade },
+      "mock",
+    );
+    summary.gradeComparison.forEach((point, index) => {
+      assert.equal(point[field], gradeSummary.habits[index]?.score);
+    });
   }
 });

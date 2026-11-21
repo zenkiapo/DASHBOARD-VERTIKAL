@@ -8,6 +8,8 @@ import { ApiError } from "./errors/ApiError.js";
 import authRouter from "./routes/auth.js";
 import dashboardRouter from "./routes/dashboard.js";
 import policyNotesRouter from "./routes/policyNotes.js";
+import rtlRouter from "./routes/rtl.js";
+import announcementRouter from "./routes/announcements.js";
 import {
   SurveyConfigError,
   SurveyDataError,
@@ -19,6 +21,7 @@ import { getRedisClient } from "./lib/redis.js";
 const app = express();
 
 app.use((request, response, next) => {
+  response.setHeader("Cache-Control", "no-store");
   const origin = request.get("origin");
   const allowedOrigins = getAllowedOrigins();
   const isAllowedOrigin = !origin || allowedOrigins.has(origin);
@@ -76,6 +79,8 @@ app.get("/health", async (_request, response) => {
 app.use("/api/auth", authRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use("/api/policy-notes", policyNotesRouter);
+app.use("/api/rtl", rtlRouter);
+app.use("/api/announcements", announcementRouter);
 
 const errorHandler: ErrorRequestHandler = (
   error: Error,

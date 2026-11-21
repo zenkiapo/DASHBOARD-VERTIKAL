@@ -4,7 +4,9 @@ import type {
   DashboardSummary,
   HabitKey,
   HabitScore,
+  PeriodComparison,
 } from "../types/dashboard";
+import type { RtlPlanDTO } from "../types/rtl";
 
 function score(value: number | null): string {
   return value === null ? "-" : value.toFixed(2);
@@ -125,7 +127,13 @@ function sortedHabits(habits: HabitScore[]): HabitScore[] {
   });
 }
 
-export function exportDashboardReport(summary: DashboardSummary): void {
+export function exportDashboardReport(
+  summary: DashboardSummary,
+  options: {
+    comparison?: PeriodComparison | null;
+    rtlPlans?: RtlPlanDTO[];
+  } = {},
+): void {
   if (summary.dataSource !== "google-sheets") {
     throw new Error("Ekspor laporan hanya tersedia untuk data Google Sheets.");
   }
@@ -271,6 +279,81 @@ export function exportDashboardReport(summary: DashboardSummary): void {
       ...summary.trends.map((point) => score(point.scores[habit.key])),
     ]),
   });
+
+  doc.addPage();
+  drawSectionTitle(
+    doc,
+    "Komparasi antar checkpoint",
+    options.comparison
+      ? `Pengukuran ${options.comparison.fromPeriod} ke ${options.comparison.toPeriod} · Google Sheets${options.comparison.isStale ? " · data tervalidasi terakhir" : ""}`
+      : "Komparasi belum tersedia pada saat laporan dibuat",
+  );
+  if (options.comparison) {
+    autoTable(doc, {
+      ...tableStyles(),
+      startY: 34,
+      head: [["Kebiasaan", "Skor awal", "Skor akhir", "Delta", "Perubahan relatif"]],
+      body: options.comparison.habits.map((habit) => [
+        habit.habit,
+        score(habit.fromScore),
+        score(habit.toScore),
+        habit.delta === null ? "-" : `${habit.delta > 0 ? "+" : ""}${habit.delta.toFixed(2)}`,
+        habit.changePercent === null
+          ? "-"
+          : `${habit.changePercent > 0 ? "+" : ""}${habit.changePercent.toFixed(1)}%`,
+      ]),
+    });
+  } else {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.text(
+      "Tidak ada data komparasi yang berhasil dimuat untuk pilihan checkpoint aktif.",
+      14,
+      42,
+    );
+  }
+
+  doc.addPage();
+  drawSectionTitle(
+    doc,
+    "Rencana Tindak Lanjut",
+    "Rencana dan status yang terlihat oleh akun aktif saat laporan dibuat",
+  );
+  const rtlPlans = options.rtlPlans ?? [];
+  if (rtlPlans.length) {
+    autoTable(doc, {
+      ...tableStyles(),
+      startY: 34,
+      head: [["Kebiasaan / sasaran", "Penanggung jawab", "Status", "Rencana", "Snapshot skor"]],
+      body: rtlPlans.map((plan) => {
+        const snapshot = plan.comparison.habits.find(
+          (habit) => habit.habit === plan.habitCategory,
+        );
+        return [
+          `${plan.habitCategory}\n${plan.targetScope}\nFilter: ${plan.comparison.appliedFilters.kelas ?? "Semua"} / ${plan.comparison.appliedFilters.jenisKelamin ?? "Semua"}\nResponden: ${plan.comparison.fromRespondents} → ${plan.comparison.toRespondents}`,
+          plan.responsibleRole.replaceAll("_", " "),
+          plan.status === "PENDING"
+            ? "Rencana"
+            : plan.status === "IN_PROGRESS"
+              ? "Proses"
+              : "Selesai",
+          plan.planContent,
+          `P${plan.comparisonFrom} ${score(snapshot?.fromScore ?? null)} → P${plan.comparisonTo} ${score(snapshot?.toScore ?? null)}`,
+        ];
+      }),
+      columnStyles: {
+        0: { cellWidth: 34 },
+        1: { cellWidth: 27 },
+        2: { cellWidth: 18 },
+        3: { cellWidth: 75 },
+        4: { cellWidth: 28 },
+      },
+    });
+  } else {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.text("Belum ada RTL pada lingkup akses akun aktif.", 14, 42);
+  }
 
   const pageCount = doc.getNumberOfPages();
   for (let page = 1; page <= pageCount; page += 1) {

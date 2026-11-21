@@ -25,7 +25,10 @@ const PERIOD_CHECKPOINTS = [
 const cache = new NodeCache({
   stdTTL: CACHE_TTL_SECONDS,
   checkperiod: 30,
+  // Parsed records are treated as immutable, avoiding a full clone on every cache read.
+  useClones: false,
 });
+let refreshInFlight: Promise<CachedSurveyData> | undefined;
 
 export class SurveyDataError extends Error {
   constructor(message: string) {
@@ -208,7 +211,7 @@ function parseLongForm(
     (!responseHeader && !scoreHeader)
   ) {
     throw new SurveyDataError(
-      "CSV format baris-per-butir membutuhkan Timestamp, Jenis Kelamin, Kelas, Kategori Kebiasaan, Pertanyaan, dan Respon atau Skor Likert.",
+      "CSV format baris-pernyataan membutuhkan Timestamp, Jenis Kelamin, Kelas, Kategori Kebiasaan, Pertanyaan, dan Respon atau Skor Likert.",
     );
   }
 
@@ -291,7 +294,7 @@ function parseLongForm(
     const recordItems = seenItems.get(recordKey)!;
     if (recordItems.has(item)) {
       throw new SurveyDataError(
-        `Butir survei duplikat pada baris CSV ${rowNumber}.`,
+        `Pernyataan survei duplikat pada baris CSV ${rowNumber}.`,
       );
     }
     recordItems.add(item);
@@ -562,11 +565,10 @@ export async function loadFromGoogleSheets(url: string): Promise<SurveyRecord[]>
   ];
 }
 
-export async function getSurveyData(): Promise<CachedSurveyData> {
-  const cached = cache.get<CachedSurveyData>(CACHE_KEY);
-  if (cached) return cached;
+function refreshSurveyData(): Promise<CachedSurveyData> {
+  if (refreshInFlight) return refreshInFlight;
 
-  try {
+  const refresh = (async () => {
     const sheetUrl = process.env.GOOGLE_SHEETS_CSV_URL?.trim();
     if (!sheetUrl) {
       throw new SurveyConfigError(
@@ -581,14 +583,31 @@ export async function getSurveyData(): Promise<CachedSurveyData> {
     cache.set(CACHE_KEY, data, CACHE_TTL_SECONDS);
     cache.set(STALE_CACHE_KEY, data, STALE_CACHE_TTL_SECONDS);
     return data;
-  } catch (error) {
-    const lastKnownGood = cache.get<CachedSurveyData>(STALE_CACHE_KEY);
-    if (lastKnownGood) {
-      console.warn(
-        "[survey-cache] Google Sheets refresh failed; serving validated data from the last successful refresh.",
-      );
-      return { ...lastKnownGood, isStale: true };
+  })();
+
+  refreshInFlight = refresh;
+  const clearRefresh = () => {
+    if (refreshInFlight === refresh) refreshInFlight = undefined;
+  };
+  void refresh.then(clearRefresh, clearRefresh);
+  return refresh;
+}
+
+export async function getSurveyData(): Promise<CachedSurveyData> {
+  const cached = cache.get<CachedSurveyData>(CACHE_KEY);
+  if (cached) return cached;
+
+  const lastKnownGood = cache.get<CachedSurveyData>(STALE_CACHE_KEY);
+  if (lastKnownGood) {
+    if (!refreshInFlight) {
+      void refreshSurveyData().catch(() => {
+        console.warn(
+          "[survey-cache] Google Sheets refresh failed; serving validated stale data.",
+        );
+      });
     }
-    throw error;
+    return { ...lastKnownGood, isStale: true };
   }
+
+  return refreshSurveyData();
 }

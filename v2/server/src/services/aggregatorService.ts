@@ -5,16 +5,19 @@ import {
   type HabitKey,
   type HabitScore,
   type MeasurementPeriod,
+  type PeriodComparison,
   type SurveyRecord,
 } from "../types/survey.js";
 
 const PERIODS: MeasurementPeriod[] = [1, 2, 3, 4];
 const GRADES = ["X", "XI", "XII"] as const;
+const MAX_FILTER_LENGTH = 64;
 
-function gradeFromClass(kelas: string): string | null {
+function gradeFromClass(kelas: string): (typeof GRADES)[number] | null {
   const normalized = kelas.trim().toUpperCase().replace(/^KELAS\s+/, "");
   const match = normalized.match(/^(XII|XI|X)(?=$|[\s/-])/);
-  return match?.[1] ?? null;
+  const grade = match?.[1];
+  return grade === "X" || grade === "XI" || grade === "XII" ? grade : null;
 }
 
 function normalizedText(value: string): string {
@@ -143,20 +146,46 @@ function countBy(
 function gradeComparison(
   records: SurveyRecord[],
 ): DashboardSummary["gradeComparison"] {
-  return HABITS.map((habit, index) => {
-    const scoresByGrade = GRADES.map((grade) => {
-      const gradeRecords = records.filter(
-        (record) => gradeFromClass(record.kelas) === grade,
-      );
-      return averageHabit(gradeRecords, index).score;
+  const totalsByGrade = new Map<
+    (typeof GRADES)[number],
+    Array<{ total: number; count: number }>
+  >(
+    GRADES.map((grade) => [
+      grade,
+      HABITS.map(() => ({ total: 0, count: 0 })),
+    ]),
+  );
+
+  for (const record of records) {
+    const grade = gradeFromClass(record.kelas);
+    if (!grade) continue;
+    const gradeTotals = totalsByGrade.get(grade);
+    if (!gradeTotals) continue;
+
+    HABITS.forEach((habit, habitIndex) => {
+      const habitTotals = gradeTotals[habitIndex]!;
+      for (let item = habit.firstItem; item <= habit.lastItem; item += 1) {
+        const score = record.answers[item];
+        if (score !== null && score !== undefined) {
+          habitTotals.total += score;
+          habitTotals.count += 1;
+        }
+      }
     });
+  }
+
+  return HABITS.map((habit, index) => {
+    const scoreForGrade = (grade: (typeof GRADES)[number]): number | null => {
+      const totals = totalsByGrade.get(grade)![index]!;
+      return totals.count === 0 ? null : round2(totals.total / totals.count);
+    };
 
     return {
       key: habit.key,
       habit: habit.name,
-      kelasX: scoresByGrade[0]!,
-      kelasXI: scoresByGrade[1]!,
-      kelasXII: scoresByGrade[2]!,
+      kelasX: scoreForGrade("X"),
+      kelasXI: scoreForGrade("XI"),
+      kelasXII: scoreForGrade("XII"),
     };
   });
 }
@@ -235,6 +264,67 @@ export function aggregateDashboardSummary(
   };
 }
 
+export function aggregatePeriodComparison(
+  records: SurveyRecord[],
+  filters: Pick<DashboardFilters, "kelas" | "jenisKelamin">,
+  fromPeriod: MeasurementPeriod,
+  toPeriod: MeasurementPeriod,
+  dataSource: DashboardSummary["dataSource"],
+): PeriodComparison {
+  const scoreForPeriod = (period: MeasurementPeriod): {
+    scores: HabitScore[];
+    respondents: number;
+  } => {
+    const periodRecords = filterSurveyRecords(
+      records,
+      { ...filters, periode: period },
+    );
+    return {
+      scores: HABITS.map((_, index) => averageHabit(periodRecords, index)),
+      respondents: uniqueRespondents(periodRecords),
+    };
+  };
+
+  const from = scoreForPeriod(fromPeriod);
+  const to = scoreForPeriod(toPeriod);
+  const habits = from.scores.map((fromHabit, index) => {
+    const toHabit = to.scores[index]!;
+    const delta =
+      fromHabit.score === null || toHabit.score === null
+        ? null
+        : round2(toHabit.score - fromHabit.score);
+    return {
+      key: fromHabit.key,
+      habit: fromHabit.habit,
+      fromScore: fromHabit.score,
+      toScore: toHabit.score,
+      delta,
+      changePercent:
+        delta === null || fromHabit.score === null
+          ? null
+          : round2((delta / fromHabit.score) * 100),
+      direction:
+        delta === null
+          ? "unavailable" as const
+          : delta > 0
+            ? "up" as const
+            : delta < 0
+              ? "down" as const
+              : "stable" as const,
+    };
+  });
+
+  return {
+    fromPeriod,
+    toPeriod,
+    fromRespondents: from.respondents,
+    toRespondents: to.respondents,
+    habits,
+    appliedFilters: filters,
+    dataSource,
+  };
+}
+
 export function parseDashboardFilters(
   query: Record<string, unknown>,
 ): DashboardFilters {
@@ -244,7 +334,16 @@ export function parseDashboardFilters(
     if (typeof value !== "string" || value.trim() === "") {
       throw new Error(`Query parameter "${name}" harus berupa teks tunggal.`);
     }
-    return value.trim();
+    const normalized = value.trim();
+    if (
+      normalized.length > MAX_FILTER_LENGTH ||
+      /[\u0000-\u001f\u007f]/.test(normalized)
+    ) {
+      throw new Error(
+        `Query parameter "${name}" terlalu panjang atau mengandung karakter kontrol.`,
+      );
+    }
+    return normalized;
   };
 
   const kelas = readString("kelas");

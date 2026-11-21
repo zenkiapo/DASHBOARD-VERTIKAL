@@ -27,6 +27,10 @@ npm run db:seed
 npm run dev
 ```
 
+Isi `UPSTASH_REDIS_REST_URL` dan `UPSTASH_REDIS_REST_TOKEN` di `.env` dari
+database Upstash sebelum menjalankan API. Docker Compose lokal hanya
+menyediakan PostgreSQL; sesi autentikasi memakai Upstash REST.
+
 Server berjalan pada `http://localhost:4000`. Endpoint hanya menggunakan data
 Google Sheets yang dikonfigurasi; server tidak mengganti data produksi dengan
 mock. Jika konfigurasi tidak tersedia, API mengembalikan HTTP 503 dengan pesan
@@ -38,6 +42,9 @@ npm run build
 npm start
 ```
 
+`npm run build` selalu menjalankan `prisma generate` sebelum TypeScript dikompilasi,
+agar Prisma Client mengikuti `prisma/schema.prisma` pada setiap deployment.
+
 ## Konfigurasi Google Sheets
 
 `src/index.ts` memuat `.env` melalui `dotenv/config`. Backend membaca:
@@ -48,7 +55,8 @@ npm start
 | `PORT` | Port HTTP; default `4000` |
 | `DATABASE_URL` | URL PostgreSQL runtime; gunakan URL pooler jika provider menyarankannya |
 | `DIRECT_URL` | Koneksi PostgreSQL langsung untuk Prisma migrate/db push |
-| `REDIS_URL` | Koneksi Redis untuk sesi |
+| `UPSTASH_REDIS_REST_URL` | HTTPS REST URL database Upstash Redis |
+| `UPSTASH_REDIS_REST_TOKEN` | Token REST Upstash; rahasiakan nilainya |
 | `CLIENT_ORIGINS` | Daftar origin frontend yang diizinkan, dipisahkan koma |
 | `SESSION_TTL_SECONDS` | TTL Redis/cookie; default `28800` (8 jam) |
 | `SESSION_COOKIE_NAME` | Nama cookie sesi; default `smavo.sid` |
@@ -58,11 +66,16 @@ host `5433`. Di cloud, akun/catatan disimpan pada PostgreSQL terkelola; filesyst
 Render tidak digunakan untuk menyimpan database.
 
 Data survei Google Sheets disimpan di `node-cache` selama 180 detik. Setelah
-TTL berakhir, server mencoba memuat ulang tab utama dan `Sheet3`. Jika refresh
-gagal, hanya data terakhir yang sebelumnya lolos validasi boleh menjadi
-fallback, maksimum 24 jam sejak berhasil dimuat. API menandai respons
-`isStale: true` dan dashboard memberi peringatan; ekspor PDF dinonaktifkan saat
-data stale. Bila belum ada cache valid, error dikembalikan (tanpa mock fallback).
+TTL cache segar berakhir, server segera menyajikan data tervalidasi terakhir
+sambil memuat ulang tab utama dan `Sheet3` di latar belakang. Refresh bersamaan
+digabung menjadi satu proses per instance Node.js. Data stale berlaku maksimum
+24 jam sejak berhasil dimuat; API menandai respons `isStale: true` dan dashboard
+memberi peringatan, sementara ekspor PDF dinonaktifkan. Pada cold start tanpa
+cache last-known-good, request pertama tetap menunggu fetch dan validasi CSV.
+Cache ini bersifat per proses/instance, bukan cache global lintas instance
+Vercel/Render; jika cold start atau skala multi-instance membebani kuota Sheets,
+gunakan cache bersama yang terkelola sebelum menaikkan TTL. Bila belum ada cache
+valid, error dikembalikan (tanpa mock fallback).
 
 Atur `GOOGLE_SHEETS_CSV_URL` pada `.env` ke URL CSV yang dapat dibaca server.
 Jangan mencetak atau mengirimkan nilai URL konfigurasi karena dapat memuat
@@ -78,10 +91,10 @@ pseudonim `SMAVO-0001`, dan kunci sementara dibuang setelah parsing.
 Pertanyaan, kategori, waktu pengisian, kelas/angkatan, label jawaban, dan skor
 Likert tetap tersedia di record internal. Tiap pengisian harus mempunyai
 tepat 35 jawaban valid. Nilai jawaban `Respon` dipakai untuk distribusi,
-sedangkan `Skor Likert` dipakai untuk rata-rata (termasuk butir yang skornya
+sedangkan `Skor Likert` dipakai untuk rata-rata (termasuk pernyataan yang skornya
 sudah dibalik).
 
-Sheet saat ini menyediakan 18.655 baris untuk 533 pengisian (35 butir per
+Sheet saat ini menyediakan 18.655 baris untuk 533 pengisian (35 pernyataan per
 pengisian), tetapi tidak memiliki kolom periode. Periode diturunkan dari tanggal
 `Timestamp` menggunakan checkpoint 2026 berikut:
 
@@ -109,7 +122,7 @@ ke KPI, skor kebiasaan, distribusi Likert, dan jumlah responden keseluruhan.
 Karena periodenya dan demografinya tidak tersedia, kontribusinya ditandai
 `Anonim / tidak diketahui`, tidak dimasukkan ke perbandingan kelas atau tren,
 dan tidak muncul saat filter periode tertentu dipakai. Item 4 dibalik skornya
-agar konsisten dengan butir negatif pada survei utama. Urutan 35 kolom
+agar konsisten dengan pernyataan negatif pada survei utama. Urutan 35 kolom
 diperlakukan sebagai urutan item 1–35 pada instrumen.
 
 Pengisian utama yang tidak memiliki 35 jawaban valid dilewati dan dicatat
@@ -129,16 +142,51 @@ memerlukan cookie sesi aktif. Untuk WALI_KELAS, backend
 mengabaikan parameter jenjang/rombel yang dikirim dan memaksa filter ke
 `assignedClass` akun.
 
+`GET /api/dashboard/comparison?from=1&to=4&kelas=X&jenis_kelamin=Perempuan`
+menghasilkan skor awal/akhir, delta, perubahan relatif, dan jumlah responden
+tiap checkpoint. Endpoint mengabaikan filter `periode` dashboard karena kedua
+checkpoint ditentukan eksplisit, menerapkan filter jenjang/rombel dan gender,
+serta hanya menerima data Google Sheets.
+
+`GET /api/rtl`, `POST /api/rtl`, `PATCH /api/rtl/:id`, dan
+`DELETE /api/rtl/:id` mengelola rencana tindak lanjut secara terpisah dari
+Policy Notes. KEPSEK/ADMIN menyusun atau mengubah isi; GURU_BK, ADMIN, KEPSEK,
+atau peran yang ditetapkan dapat memperbarui status. WALI_KELAS hanya melihat
+target seluruh sekolah, jenjang, dan rombel binaannya. Siswa ditolak di
+middleware dan controller. Snapshot komparasi dibuat ulang server-side dari
+Google Sheets dan hanya menyimpan statistik agregat.
+
+Pengumuman 7 KAIH disimpan terpisah dari RTL dan Policy Notes:
+
+- `GET /api/announcements` dapat dibaca tanpa autentikasi.
+- `POST /api/announcements`, `PATCH /api/announcements/:id`, dan
+  `DELETE /api/announcements/:id` hanya dapat dipakai KEPSEK, GURU_BK,
+  WALI_KELAS, dan ADMIN. Otorisasi ditegakkan di middleware dan controller.
+- API memvalidasi kategori 7 KAIH, sasaran seluruh siswa/jenjang/rombel,
+  prioritas, panjang teks, serta tanggal. Isi dirender sebagai teks biasa di
+  frontend; query database menggunakan Prisma.
+
+Skema `Announcement` ditambahkan melalui
+`prisma/migrations/20261121153000_add_announcements/migration.sql`. Pada
+database dengan migration history, deploy migrasi dengan
+`npx prisma migrate deploy` sebelum menjalankan API baru. Pada database yang
+dikelola dengan alur `db push`, backup dahulu lalu jalankan `npx prisma db push`.
+
 - `kelas`: jenjang `X`, `XI`, `XII` (atau label seperti `X-1` untuk satu rombel).
 - `jenis_kelamin`: pencocokan tanpa membedakan kapitalisasi.
 - `periode` atau `periode_pengukuran`: nilai `1`–`4` atau `Pengukuran 1`–`4`.
+- Nilai filter teks dibatasi 64 karakter dan karakter kontrol ditolak.
 - Filter kelas/gender/periode diterapkan ke KPI, skor kebiasaan, distribusi,
   perbandingan kelas, serta demografi. Tren selalu menampilkan keempat periode,
   dengan filter kelas dan gender tetap berlaku.
+- Respons API memakai `Cache-Control: no-store` agar payload sesi/kebijakan tidak
+  disimpan cache browser atau proxy.
 - `overallIndex` adalah rata-rata tujuh skor kebiasaan. `totalRespondents`
   menghitung ID unik, sedangkan `totalResponses` menghitung baris pengukuran.
 - `habits` mengikuti urutan resmi; `priorityHabits` berisi dua skor terendah.
 - Persentase Likert dihitung atas seluruh jawaban item yang terisi per kebiasaan.
+- Skor komparasi `delta` ialah skor akhir dikurangi skor awal; perubahan relatif
+  dihitung terhadap skor awal dan dibulatkan dua desimal.
 
 ## Bentuk data untuk grafik
 
@@ -190,19 +238,19 @@ terkonfirmasi `google-sheets`.
 ## Akun, autentikasi, dan catatan kebijakan
 
 Fitur DSS memakai Prisma ORM dengan PostgreSQL untuk tabel `User` dan
-`PolicyNote`, serta Redis untuk sesi login. Data survei tetap dibaca dari
-Google Sheets. Salin variabel yang diperlukan dari `.env.example` ke `.env`
-tanpa mengganti nilai `GOOGLE_SHEETS_CSV_URL`.
+`PolicyNote`, serta Upstash Redis REST untuk sesi login. Data survei tetap
+dibaca dari Google Sheets. Salin variabel yang diperlukan dari `.env.example`
+ke `.env` tanpa mengganti nilai `GOOGLE_SHEETS_CSV_URL`.
 
-Untuk layanan development lokal, jalankan PostgreSQL dan Redis dari folder
-`server`:
+Untuk development lokal, jalankan PostgreSQL dari folder `server`:
 
 ```powershell
 docker compose up -d
 ```
 
-Kredensial pada `docker-compose.yml` hanya untuk development lokal; ganti
-dengan kredensial terkelola sebelum deployment. Siapkan database dan akun demo:
+Kredensial PostgreSQL pada `docker-compose.yml` hanya untuk development lokal;
+ganti dengan kredensial terkelola sebelum deployment. Isi juga URL dan token
+Upstash pada `.env`, lalu siapkan database dan akun demo:
 
 ```powershell
 npm run db:generate
@@ -210,7 +258,7 @@ npm run db:migrate
 npm run db:seed
 ```
 
-Login membuat ID sesi acak yang disimpan di Redis selama 8 jam (default).
+Login membuat ID sesi acak yang disimpan di Upstash Redis selama 8 jam (default).
 Browser menerima ID tersebut melalui cookie `HttpOnly`, `SameSite=Lax` lokal
 atau `SameSite=None; Secure` di production; ID sesi tidak dikirim pada body
 JSON atau disimpan sebagai bearer token di frontend. Role dan kelas binaan
@@ -249,7 +297,7 @@ deployment produksi. Endpoint autentikasi:
 - `POST /api/auth/login` dengan `{ "email": "...", "password": "..." }`
 - `POST /api/auth/demo-login` dengan `{ "role": "KEPSEK" }`
 - `GET /api/auth/me` memeriksa sesi dari cookie
-- `POST /api/auth/logout` menghapus sesi Redis dan cookie
+- `POST /api/auth/logout` menghapus sesi Upstash Redis dan cookie
 
 Akun SISWA dapat membuka dashboard agregat, tetapi tidak mendapatkan tombol
 ekspor PDF maupun akses ke endpoint catatan kebijakan. Akun staf tetap
@@ -304,14 +352,22 @@ backup permanen.
 dikelola dengan migration history, gunakan `npx prisma migrate deploy` dan
 jangan mencampur kedua alur tanpa baseline migration.
 
+Skema `RtlPlan` dan migration
+`prisma/migrations/20261119110000_add_rtl_plans/migration.sql` bersifat
+aditif dan mempertahankan tabel Policy Notes. Pada database production yang
+memakai `db push`, jalankan `npx prisma db push` setelah backup. Pada database
+dengan migration history yang sudah dibaseline, deploy migration tersebut
+dengan `npx prisma migrate deploy` sebelum mengaktifkan versi API baru.
+
 ### 2. Deploy API di Render
 
-1. Siapkan URL PostgreSQL dan Redis terkelola; jangan memakai `localhost`
-   pada konfigurasi production.
+1. Siapkan URL PostgreSQL dan database Upstash Redis; jangan memakai
+   `localhost` pada konfigurasi production.
 2. Hubungkan GitHub repository ke Render Blueprint menggunakan
    `v2/render.yaml`. Blueprint memakai root directory `v2/server`, membangun
    API, dan memeriksa endpoint `/health`.
-3. Isi Render environment variables `DATABASE_URL`, `DIRECT_URL`, `REDIS_URL`,
+3. Isi Render environment variables `DATABASE_URL`, `DIRECT_URL`,
+   `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`,
    `GOOGLE_SHEETS_CSV_URL`, dan `CLIENT_ORIGINS`. Atur juga
    `SESSION_COOKIE_NAME=smavo.sid` dan `SESSION_TTL_SECONDS=28800`.
 4. Set `CLIENT_ORIGINS` menjadi origin frontend HTTPS yang tepat, misalnya

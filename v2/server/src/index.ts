@@ -2,7 +2,7 @@ import "dotenv/config";
 import app from "./app.js";
 import { validateEnvironment } from "./config/env.js";
 import { prisma } from "./lib/prisma.js";
-import { closeRedis, connectRedis } from "./lib/redis.js";
+import { connectRedis } from "./lib/redis.js";
 
 const port = Number(process.env.PORT ?? 4000);
 
@@ -23,16 +23,10 @@ async function startServer(): Promise<void> {
         console.error(`[server] Gagal berhenti setelah ${signal}.`, error);
         process.exitCode = 1;
       }
-      void Promise.allSettled([prisma.$disconnect(), closeRedis()]).then(
-        (results) => {
-          for (const result of results) {
-            if (result.status === "rejected") {
-              console.error("[server] Gagal menutup koneksi database.", result.reason);
-              process.exitCode = 1;
-            }
-          }
-        },
-      );
+      void prisma.$disconnect().catch((disconnectError: unknown) => {
+        console.error("[server] Gagal menutup koneksi database.", disconnectError);
+        process.exitCode = 1;
+      });
     });
   };
   process.once("SIGINT", () => shutdown("SIGINT"));
@@ -41,7 +35,9 @@ async function startServer(): Promise<void> {
 
 startServer().catch((error: unknown) => {
   console.error("[server] Gagal memulai API.", error);
-  void Promise.allSettled([prisma.$disconnect(), closeRedis()]).then(() => {
+  void prisma.$disconnect().catch((disconnectError: unknown) => {
+    console.error("[server] Gagal menutup koneksi database.", disconnectError);
+  }).finally(() => {
     process.exitCode = 1;
   });
 });

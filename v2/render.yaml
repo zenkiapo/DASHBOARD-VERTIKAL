@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     rootDir: v2/server
-    buildCommand: npm ci && npm run db:generate && npm run build
+    buildCommand: npm ci --include=dev && npm run db:generate && npm run build
     startCommand: npm start
     healthCheckPath: /health
     envVars:
@@ -14,7 +14,9 @@ services:
         sync: false
       - key: DIRECT_URL
         sync: false
-      - key: REDIS_URL
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
         sync: false
       - key: GOOGLE_SHEETS_CSV_URL
         sync: false
