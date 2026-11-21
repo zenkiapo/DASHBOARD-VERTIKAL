@@ -487,12 +487,12 @@ button { cursor: pointer; }
 .team-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; }
 .team-card { min-width: 0; overflow: hidden; border: 1px solid #e8edf4; border-radius: 13px; background: white; box-shadow: 0 8px 26px rgba(27,45,80,.045); transition: transform .18s ease, box-shadow .18s ease; }
 .team-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(27,45,80,.09); }
-.team-photo { position: relative; display: grid; place-items: center; height: 164px; overflow: hidden; background: linear-gradient(145deg,#eef2ff,#e9f4f4 58%,#fff4e8); }
+.team-photo { position: relative; display: grid; place-items: center; aspect-ratio: 4 / 3; overflow: hidden; background: linear-gradient(145deg,#eef2ff,#e9f4f4 58%,#fff4e8); }
 .team-photo-2 { background: linear-gradient(145deg,#eaf8f4,#edf2ff); }
 .team-photo-3 { background: linear-gradient(145deg,#fff4e7,#f3efff); }
 .team-photo-4 { background: linear-gradient(145deg,#f3efff,#eaf8f4); }
 .team-photo-5 { background: linear-gradient(145deg,#e9f4f4,#fff4e8); }
-.team-photo > img { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.team-photo > img { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 22%; }
 .team-photo-placeholder { display: grid; justify-items: center; gap: 5px; color: #7182b7; }
 .team-initials { display: grid; place-items: center; width: 58px; height: 58px; margin-bottom: 2px; border: 1px solid #fff; border-radius: 50%; background: #ffffffa8; color: #4259a2; font-size: 20px; font-weight: 750; letter-spacing: -.04em; box-shadow: 0 5px 16px #2c426b12; }
 .team-photo-placeholder small { color: #7d89a1; font-size: 8px; }
@@ -509,6 +509,44 @@ button { cursor: pointer; }
 .team-dashboard-link { display: inline-flex; flex: none; align-items: center; gap: 6px; padding: 8px 10px; border: 0; border-radius: 7px; background: #263d75; color: #fff; font-size: 9px; font-weight: 700; cursor: pointer; }
 .team-dashboard-link:hover { background: #38549a; }
 
+.announcement-content { padding-bottom: 60px; }
+.announcement-error { margin: 0; padding: 11px 13px; border: 1px solid #f2d0d0; border-radius: 9px; background: #fff8f8; color: #b84d55; font-size: 10px; line-height: 1.6; }
+.announcement-login, .announcement-form-panel { padding: 18px; }
+.announcement-panel-heading, .announcement-list-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.announcement-panel-heading h2, .announcement-list-heading h2 { margin: 6px 0 0; color: #263650; font-size: 17px; letter-spacing: -.03em; }
+.announcement-read-badge { padding: 7px 10px; border-radius: 20px; background: #eaf8f4; color: #21836f; font-size: 9px; font-weight: 650; }
+.announcement-login .policy-login-form { grid-template-columns: repeat(2,minmax(0,1fr)) auto; align-items: end; margin-top: 15px; }
+.announcement-login .policy-save-button { width: auto; min-height: 34px; }
+.announcement-login .policy-demo-section { margin-top: 13px; }
+.announcement-form { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin-top: 17px; }
+.announcement-field { display: grid; align-content: start; gap: 6px; color: #738098; font-size: 9px; font-weight: 650; }
+.announcement-field input, .announcement-field select, .announcement-field textarea { width: 100%; min-width: 0; padding: 9px 10px; border: 1px solid #e3e8f1; border-radius: 7px; outline: none; background: #fff; color: #33425a; font: inherit; font-size: 10px; font-weight: 400; }
+.announcement-field textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
+.announcement-field input:focus, .announcement-field select:focus, .announcement-field textarea:focus { border-color: #9bacff; box-shadow: 0 0 0 3px #4c6fff15; }
+.announcement-field-wide { grid-column: 1 / -1; }
+.announcement-form-actions { display: flex; grid-column: 1 / -1; align-items: center; justify-content: space-between; gap: 12px; }
+.announcement-form-actions > span { color: #8a96a8; font-size: 9px; }
+.announcement-cancel { display: inline-flex; align-items: center; gap: 5px; padding: 7px 9px; border: 1px solid #e3e8f1; border-radius: 7px; background: white; color: #68768b; font-size: 9px; }
+.announcement-list-section { display: grid; gap: 13px; }
+.announcement-list-heading { padding: 0 2px; }
+.announcement-list-heading > span { color: #8a96a8; font-size: 9px; }
+.announcement-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.announcement-card { display: flex; min-width: 0; flex-direction: column; padding: 16px; }
+.announcement-card-top, .announcement-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.announcement-priority, .announcement-date { display: inline-flex; align-items: center; gap: 5px; color: #7e8ba0; font-size: 9px; }
+.announcement-priority { padding: 5px 8px; border-radius: 20px; background: #f0f3ff; color: #526bd2; font-weight: 700; }
+.priority-high { background: #fff0ed; color: #c24e55; }
+.priority-low { background: #eaf8f4; color: #21836f; }
+.announcement-card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 13px; }
+.announcement-card-tags span { padding: 5px 7px; border-radius: 5px; background: #f7f9fc; color: #76849a; font-size: 8px; font-weight: 650; }
+.announcement-card h3 { margin: 11px 0 6px; color: #2d3b55; font-size: 14px; line-height: 1.45; }
+.announcement-card > p { flex: 1; margin: 0; color: #728097; font-size: 10px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.announcement-card-footer { margin-top: 15px; padding-top: 10px; border-top: 1px solid #eef1f6; color: #98a2b1; font-size: 8px; }
+.announcement-actions { display: flex; gap: 5px; }
+.announcement-actions button { display: inline-flex; align-items: center; gap: 4px; padding: 6px 7px; border: 1px solid #e4e9f1; border-radius: 6px; background: #fff; color: #61708a; font-size: 8px; }
+.announcement-actions button:last-child { color: #b84d55; }
+.announcement-actions button:disabled, .announcement-cancel:disabled { cursor: not-allowed; opacity: .6; }
+
 @media (max-width: 900px) {
   .welcome-hero { min-height: 540px; padding-inline: 6%; }
   .welcome-hero-art { height: 340px; }
@@ -522,6 +560,7 @@ button { cursor: pointer; }
   .team-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
 @media (max-width: 620px) {
+  .announcement-list { grid-template-columns: 1fr; }
   .welcome-nav { min-height: 66px; padding: 0 17px; }
   .welcome-brand-mark { width: 35px; height: 35px; }
   .welcome-brand strong { font-size: 9px; }
@@ -575,6 +614,9 @@ button { cursor: pointer; }
   .team-nav-label { display: none; }
   .team-content { padding: 22px 18px 48px; }
   .team-heading { margin: 24px auto 23px; }
+  .team-nav .rtl-nav-button { width: 32px; min-width: 32px; padding: 0; font-size: 0; }
+  .team-nav .welcome-nav-cta { padding: 9px; }
+  .team-nav .welcome-nav-cta span { display: none; }
   .team-heading p { font-size: 10px; }
   .team-grid { grid-template-columns: 1fr; gap: 10px; }
   .team-card { display: grid; grid-template-columns: 112px 1fr; align-items: stretch; }
@@ -589,6 +631,19 @@ button { cursor: pointer; }
   .team-dashboard-link { margin-left: 46px; }
   .topbar-meta > span:nth-child(2), .topbar-meta .meta-divider, .topbar-meta > span:nth-child(4) { display: none; }
   .export-button { margin-left: 0; }
+  .announcement-content { gap: 12px; padding: 16px 0 40px; }
+  .announcement-login, .announcement-form-panel { padding: 13px; }
+  .announcement-panel-heading { align-items: flex-start; }
+  .announcement-read-badge { max-width: 120px; text-align: center; line-height: 1.5; }
+  .announcement-login .policy-login-form { grid-template-columns: 1fr; }
+  .announcement-login .policy-save-button { width: 100%; }
+  .announcement-form { grid-template-columns: 1fr; gap: 10px; }
+  .announcement-field-wide, .announcement-form-actions { grid-column: 1; }
+  .announcement-form-actions { align-items: flex-start; flex-direction: column; }
+  .announcement-card { padding: 13px; }
+  .announcement-card-footer { align-items: flex-start; }
+  .announcement-actions { flex-wrap: wrap; justify-content: flex-end; }
+  .announcement-card-top { align-items: flex-start; }
 }
 @media (max-width: 400px) {
   .welcome-brand small { display: none; }

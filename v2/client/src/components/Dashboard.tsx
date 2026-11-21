@@ -47,9 +47,10 @@ function formatUpdatedAt(date: Date): string {
 interface DashboardProps {
   onBack: () => void;
   onOpenRtl: () => void;
+  onOpenAnnouncement: () => void;
 }
 
-export function Dashboard({ onBack, onOpenRtl }: DashboardProps) {
+export function Dashboard({ onBack, onOpenRtl, onOpenAnnouncement }: DashboardProps) {
   const [filters, setFilters] = useState(emptyFilters);
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -259,6 +260,9 @@ export function Dashboard({ onBack, onOpenRtl }: DashboardProps) {
           <span>VERTIKAL SMA 2026</span>
           <button className="rtl-nav-button" onClick={onOpenRtl} type="button">
             Rencana RTL
+          </button>
+          <button className="rtl-nav-button" onClick={onOpenAnnouncement} type="button">
+            Pengumuman
           </button>
           {!isStudent && (
             <button

@@ -30,6 +30,7 @@ interface RtlPageProps {
   onBack: () => void;
   onOpenDashboard: () => void;
   onOpenTeam: () => void;
+  onOpenAnnouncement: () => void;
 }
 
 const emptyFilters: DashboardFilters = {
@@ -88,7 +89,12 @@ function score(value: number | null): string {
   return value === null ? "—" : value.toFixed(2);
 }
 
-export function RtlPage({ onBack, onOpenDashboard, onOpenTeam }: RtlPageProps) {
+export function RtlPage({
+  onBack,
+  onOpenDashboard,
+  onOpenTeam,
+  onOpenAnnouncement,
+}: RtlPageProps) {
   const [session, setSession] = useState<AuthSession | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [plans, setPlans] = useState<RtlPlanDTO[]>([]);
@@ -317,6 +323,7 @@ export function RtlPage({ onBack, onOpenDashboard, onOpenTeam }: RtlPageProps) {
           <button type="button" onClick={onBack}>Beranda</button>
           <button type="button" onClick={onOpenDashboard}>Dashboard</button>
           <button type="button" onClick={onOpenTeam}>Tim Pengembang</button>
+          <button type="button" onClick={onOpenAnnouncement}>Pengumuman</button>
         </nav>
       </header>
 

@@ -156,6 +156,22 @@ target seluruh sekolah, jenjang, dan rombel binaannya. Siswa ditolak di
 middleware dan controller. Snapshot komparasi dibuat ulang server-side dari
 Google Sheets dan hanya menyimpan statistik agregat.
 
+Pengumuman 7 KAIH disimpan terpisah dari RTL dan Policy Notes:
+
+- `GET /api/announcements` dapat dibaca tanpa autentikasi.
+- `POST /api/announcements`, `PATCH /api/announcements/:id`, dan
+  `DELETE /api/announcements/:id` hanya dapat dipakai KEPSEK, GURU_BK,
+  WALI_KELAS, dan ADMIN. Otorisasi ditegakkan di middleware dan controller.
+- API memvalidasi kategori 7 KAIH, sasaran seluruh siswa/jenjang/rombel,
+  prioritas, panjang teks, serta tanggal. Isi dirender sebagai teks biasa di
+  frontend; query database menggunakan Prisma.
+
+Skema `Announcement` ditambahkan melalui
+`prisma/migrations/20261121153000_add_announcements/migration.sql`. Pada
+database dengan migration history, deploy migrasi dengan
+`npx prisma migrate deploy` sebelum menjalankan API baru. Pada database yang
+dikelola dengan alur `db push`, backup dahulu lalu jalankan `npx prisma db push`.
+
 - `kelas`: jenjang `X`, `XI`, `XII` (atau label seperti `X-1` untuk satu rombel).
 - `jenis_kelamin`: pencocokan tanpa membedakan kapitalisasi.
 - `periode` atau `periode_pengukuran`: nilai `1`–`4` atau `Pengukuran 1`–`4`.

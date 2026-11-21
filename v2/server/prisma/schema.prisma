@@ -31,6 +31,7 @@ model User {
   assignedClass String?
   notes         PolicyNote[]
   rtlPlans      RtlPlan[]
+  announcements Announcement[]
   createdAt     DateTime     @default(now())
 }
 
@@ -67,5 +68,23 @@ model RtlPlan {
 
   @@index([targetScope, createdAt])
   @@index([responsibleRole, status])
+  @@index([authorId])
+}
+
+model Announcement {
+  id            String   @id @default(uuid())
+  authorId      String
+  author        User     @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  title         String
+  habitCategory String
+  targetScope   String
+  priority      String   @default("NORMAL")
+  content       String
+  eventDate     DateTime? @db.Date
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([targetScope, eventDate])
   @@index([authorId])
 }

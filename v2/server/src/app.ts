@@ -9,6 +9,7 @@ import authRouter from "./routes/auth.js";
 import dashboardRouter from "./routes/dashboard.js";
 import policyNotesRouter from "./routes/policyNotes.js";
 import rtlRouter from "./routes/rtl.js";
+import announcementRouter from "./routes/announcements.js";
 import {
   SurveyConfigError,
   SurveyDataError,
@@ -79,6 +80,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use("/api/policy-notes", policyNotesRouter);
 app.use("/api/rtl", rtlRouter);
+app.use("/api/announcements", announcementRouter);
 
 const errorHandler: ErrorRequestHandler = (
   error: Error,

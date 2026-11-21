@@ -7,6 +7,7 @@ import {
   CalendarDays,
   ChartNoAxesCombined,
   ClipboardList,
+  Megaphone,
   ExternalLink,
   Heart,
   Moon,
@@ -22,6 +23,7 @@ interface WelcomePageProps {
   onOpenDashboard: () => void;
   onOpenTeam: () => void;
   onOpenRtl: () => void;
+  onOpenAnnouncement: () => void;
 }
 
 const habits = [
@@ -125,6 +127,7 @@ export function WelcomePage({
   onOpenDashboard,
   onOpenTeam,
   onOpenRtl,
+  onOpenAnnouncement,
 }: WelcomePageProps) {
   const [selectedGalleryItem, setSelectedGalleryItem] =
     useState<GalleryItem | null>(null);
@@ -153,9 +156,23 @@ export function WelcomePage({
           <a href="#tentang">Tentang 7 KAIH</a>
           <a href="#kebiasaan">7 Kebiasaan</a>
           <a href="#galeri">Galeri</a>
-          <button className="welcome-team-link" onClick={onOpenRtl} type="button">
+          <button
+            aria-label="Buka halaman Rencana RTL"
+            className="welcome-team-link"
+            onClick={onOpenRtl}
+            type="button"
+          >
             <ClipboardList aria-hidden="true" size={14} />
             <span>Rencana RTL</span>
+          </button>
+          <button
+            aria-label="Buka halaman Pengumuman"
+            className="welcome-team-link"
+            onClick={onOpenAnnouncement}
+            type="button"
+          >
+            <Megaphone aria-hidden="true" size={14} />
+            <span>Pengumuman</span>
           </button>
           <button
             aria-label="Buka halaman Tim Pengembang"

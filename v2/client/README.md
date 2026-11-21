@@ -39,6 +39,7 @@ src/
       LikertDistributionChart.tsx
     WelcomePage.tsx
     TeamPage.tsx
+    AnnouncementPage.tsx
     ui/chart.tsx
     ChartCard.tsx
     Dashboard.tsx
@@ -97,6 +98,13 @@ dapat memperbarui status sesuai aturan backend. WALI_KELAS hanya mengakses
 target seluruh sekolah, jenjang, dan rombel binaannya. Data disimpan sebagai
 RTL terpisah dari **Catatan Evaluasi & Tindak Lanjut** yang sudah ada.
 
+Halaman **Pengumuman 7 KAIH** tersedia pada `/announcement`, terpisah dari
+Welcome Page, dashboard, RTL, dan Tim Pengembang. Daftar pengumuman dapat
+dibaca tanpa login. Hanya KEPSEK, GURU_BK, WALI_KELAS, dan ADMIN yang mendapat
+formulir serta aksi buat, ubah, dan hapus; otorisasi yang sama ditegakkan oleh
+API. Pengumuman memuat kategori kebiasaan, sasaran, prioritas, isi, dan tanggal
+kegiatan/pengingat.
+
 Sebelum membuka panel, siapkan PostgreSQL dari folder `server` dan konfigurasi
 Upstash Redis pada `.env` server, lalu salin konfigurasi `.env.example` ke
 `.env`:
@@ -114,9 +122,10 @@ diimpor otomatis dan tetap disimpan sebagai arsip lokal.
 
 Halaman **Tim Pengembang** dibuka dari tombol pengguna di header Welcome Page.
 Nama, peran, inisial placeholder, dan deskripsi tanggung jawab diedit pada
-array `teamMembers` di `src/components/TeamPage.tsx`. Untuk mengganti placeholder
-dengan foto, letakkan foto berizin di `public/team/` dan isi properti `photo`
-dengan path seperti `/team/bagaskara.jpg`.
+array `teamMembers` di `src/components/TeamPage.tsx`. Foto lokal anggota berada
+di `public/gallery/optimized/` dengan nama `foto-<nama-anggota>.jpeg`; bingkai
+foto menjaga rasio 4:3 dan fokus atas, dengan inisial sebagai fallback jika
+gambar tidak dapat dimuat.
 
 ## Deployment Vercel
 

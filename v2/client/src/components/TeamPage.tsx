@@ -1,10 +1,12 @@
 import { useEffect } from "react";
-import { ArrowLeft, ArrowRight, Camera, ClipboardList, Users } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, ArrowRight, Camera, ClipboardList, Megaphone, Users } from "lucide-react";
 
 interface TeamPageProps {
   onBack: () => void;
   onOpenDashboard: () => void;
   onOpenRtl: () => void;
+  onOpenAnnouncement: () => void;
 }
 
 interface TeamMember {
@@ -12,7 +14,7 @@ interface TeamMember {
   role: string;
   initials: string;
   responsibility: string;
-  photo?: string;
+  photo: string;
 }
 
 const teamMembers: TeamMember[] = [
@@ -20,6 +22,7 @@ const teamMembers: TeamMember[] = [
     name: "Bagaskara Bisma Anoka",
     role: "Project Lead",
     initials: "BB",
+    photo: "/gallery/optimized/foto-bagaskara-bisma-anoka.jpeg",
     responsibility:
       "Mengoordinasikan tim, menjaga arah riset 7 KAIH, dan memastikan setiap bagian proyek berjalan selaras.",
   },
@@ -27,6 +30,7 @@ const teamMembers: TeamMember[] = [
     name: "Rei Dillan Hartedi",
     role: "Dashboard Lead",
     initials: "RD",
+    photo: "/gallery/optimized/foto-rei-dillan-hartedi.jpeg",
     responsibility:
       "Mengembangkan dashboard serta visualisasi data agar hasil pemantauan mudah dibaca dan ditindaklanjuti.",
   },
@@ -34,6 +38,7 @@ const teamMembers: TeamMember[] = [
     name: "Kenzie Dzakwan Ibrahim",
     role: "Presentation Lead",
     initials: "KD",
+    photo: "/gallery/optimized/foto-kenzie-dzakwan-ibrahim.jpeg",
     responsibility:
       "Menyusun alur presentasi dan narasi yang runtut, jelas, serta relevan untuk dewan juri VERTIKAL SMA 2026.",
   },
@@ -41,6 +46,7 @@ const teamMembers: TeamMember[] = [
     name: "Jesslyn Quinn Gabrielle Sitorus",
     role: "Data Analyst",
     initials: "JQ",
+    photo: "/gallery/optimized/foto-jesslyn-quinn-gabrielle-sitorus.jpeg",
     responsibility:
       "Mengolah dan memvalidasi jawaban survei 7 KAIH agar ringkasan dan perbandingan data tersaji akurat.",
   },
@@ -48,6 +54,7 @@ const teamMembers: TeamMember[] = [
     name: "Mohammad Arsa Dafansyah",
     role: "Gemini & Insight Lead",
     initials: "MA",
+    photo: "/gallery/optimized/foto-mohammad-arsa-dafansyah.jpeg",
     responsibility:
       "Merancang prompt dan alur kerja AI untuk mendukung riset, analisis, dan proses pengembangan proyek.",
   },
@@ -55,6 +62,7 @@ const teamMembers: TeamMember[] = [
     name: "Ahmad Tirtayasa, S.Pd.",
     role: "Guru Substansi 7 KAIH",
     initials: "AT",
+    photo: "/gallery/optimized/foto-ahmad-tirtayasa.jpeg",
     responsibility:
       "Memberikan arahan substansi 7 KAIH agar pemantauan dan analisis sesuai dengan tujuan pembiasaan siswa.",
   },
@@ -62,12 +70,42 @@ const teamMembers: TeamMember[] = [
     name: "Nur Adillawati Kosim Saputri, M.Pd.",
     role: "Guru Pendamping",
     initials: "NA",
+    photo: "/gallery/optimized/foto-nur-adillawati-kosim-saputri.jpeg",
     responsibility:
       "Mendampingi tim dalam pelaksanaan proyek dan pengembangan dashboard monitoring 7 KAIH.",
   },
 ];
 
-export function TeamPage({ onBack, onOpenDashboard, onOpenRtl }: TeamPageProps) {
+function TeamPhoto({ member, index }: { member: TeamMember; index: number }) {
+  const [failed, setFailed] = useState(false);
+
+  return (
+    <div className={`team-photo team-photo-${index + 1}`}>
+      {!failed ? (
+        <img
+          alt={`Foto ${member.name}`}
+          loading="lazy"
+          onError={() => setFailed(true)}
+          src={member.photo}
+        />
+      ) : (
+        <div className="team-photo-placeholder">
+          <span className="team-initials">{member.initials}</span>
+          <Camera aria-hidden="true" size={14} />
+          <small>Foto anggota</small>
+        </div>
+      )}
+      <span className="team-number">{String(index + 1).padStart(2, "0")}</span>
+    </div>
+  );
+}
+
+export function TeamPage({
+  onBack,
+  onOpenDashboard,
+  onOpenRtl,
+  onOpenAnnouncement,
+}: TeamPageProps) {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -88,8 +126,11 @@ export function TeamPage({ onBack, onOpenDashboard, onOpenRtl }: TeamPageProps) 
           <Users aria-hidden="true" size={15} />
           Tim Pengembang
         </span>
-        <button className="rtl-nav-button" onClick={onOpenRtl} type="button">
+        <button aria-label="Buka Rencana RTL" className="rtl-nav-button" onClick={onOpenRtl} type="button">
           <ClipboardList size={14} /> Rencana RTL
+        </button>
+        <button aria-label="Buka Pengumuman" className="rtl-nav-button" onClick={onOpenAnnouncement} type="button">
+          <Megaphone size={14} /> Pengumuman
         </button>
         <button className="welcome-nav-cta" onClick={onOpenDashboard} type="button">
           <span>Buka dashboard</span><ArrowRight size={15} />
@@ -114,25 +155,7 @@ export function TeamPage({ onBack, onOpenDashboard, onOpenRtl }: TeamPageProps) 
         <section className="team-grid" aria-label="Anggota tim pengembang">
           {teamMembers.map((member, index) => (
             <article className="team-card" key={member.name}>
-              <div className={`team-photo team-photo-${index + 1}`}>
-                {member.photo ? (
-                  <img
-                    alt={`Foto ${member.name}`}
-                    loading="lazy"
-                    onError={(event) => {
-                      event.currentTarget.style.display = "none";
-                    }}
-                    src={member.photo}
-                  />
-                ) : (
-                  <div className="team-photo-placeholder">
-                    <span className="team-initials">{member.initials}</span>
-                    <Camera aria-hidden="true" size={14} />
-                    <small>Foto anggota</small>
-                  </div>
-                )}
-                <span className="team-number">{String(index + 1).padStart(2, "0")}</span>
-              </div>
+              <TeamPhoto index={index} member={member} />
               <div className="team-card-content">
                 <span className="team-role">{member.role}</span>
                 <h2>{member.name}</h2>

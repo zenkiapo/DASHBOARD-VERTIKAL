@@ -2,14 +2,16 @@ import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { TeamPage } from "./components/TeamPage";
 import { WelcomePage } from "./components/WelcomePage";
 import { RtlPage } from "./components/RtlPage";
+import { AnnouncementPage } from "./components/AnnouncementPage";
 
-type Page = "welcome" | "dashboard" | "team" | "rtl";
+type Page = "welcome" | "dashboard" | "team" | "rtl" | "announcement";
 
 function getPage(): Page {
   switch (window.location.pathname.replace(/\/+$/, "")) {
     case "/dashboard": return "dashboard";
     case "/team": return "team";
     case "/rtl": return "rtl";
+    case "/announcement": return "announcement";
     default: return "welcome";
   }
 }
@@ -51,6 +53,7 @@ export default function App() {
         <Dashboard
           onBack={() => navigate("welcome")}
           onOpenRtl={() => navigate("rtl")}
+          onOpenAnnouncement={() => navigate("announcement")}
         />
       </Suspense>
     );
@@ -61,6 +64,7 @@ export default function App() {
         onBack={() => navigate("welcome")}
         onOpenDashboard={() => navigate("dashboard")}
         onOpenRtl={() => navigate("rtl")}
+        onOpenAnnouncement={() => navigate("announcement")}
       />
     );
   }
@@ -70,6 +74,17 @@ export default function App() {
         onBack={() => navigate("welcome")}
         onOpenDashboard={() => navigate("dashboard")}
         onOpenTeam={() => navigate("team")}
+        onOpenAnnouncement={() => navigate("announcement")}
+      />
+    );
+  }
+  if (page === "announcement") {
+    return (
+      <AnnouncementPage
+        onBack={() => navigate("welcome")}
+        onOpenDashboard={() => navigate("dashboard")}
+        onOpenRtl={() => navigate("rtl")}
+        onOpenTeam={() => navigate("team")}
       />
     );
   }
@@ -78,6 +93,7 @@ export default function App() {
       onOpenDashboard={() => navigate("dashboard")}
       onOpenTeam={() => navigate("team")}
       onOpenRtl={() => navigate("rtl")}
+      onOpenAnnouncement={() => navigate("announcement")}
     />
   );
 }
