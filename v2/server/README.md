@@ -171,6 +171,10 @@ Skema `Announcement` ditambahkan melalui
 database dengan migration history, deploy migrasi dengan
 `npx prisma migrate deploy` sebelum menjalankan API baru. Pada database yang
 dikelola dengan alur `db push`, backup dahulu lalu jalankan `npx prisma db push`.
+Jika endpoint announcement menjawab 503 karena skema belum siap, jalankan
+migrasi tersebut dari direktori `server` menggunakan koneksi `DIRECT_URL` yang
+sesuai, lalu ulangi permintaan. API tidak mengirim detail skema atau stack trace
+database ke klien.
 
 - `kelas`: jenjang `X`, `XI`, `XII` (atau label seperti `X-1` untuk satu rombel).
 - `jenis_kelamin`: pencocokan tanpa membedakan kapitalisasi.

@@ -33,7 +33,15 @@ function readText(
 ): string {
   const value = body[field];
   if (typeof value !== "string" || !value.trim() || value.trim().length > maxLength) {
-    throw new ApiError(`${field} wajib diisi (maksimal ${maxLength} karakter).`, 400);
+    const labels: Record<string, string> = {
+      title: "Judul",
+      targetScope: "Sasaran",
+      content: "Isi pengumuman",
+    };
+    throw new ApiError(
+      `${labels[field] ?? field} wajib diisi (maksimal ${maxLength} karakter).`,
+      400,
+    );
   }
   return value.trim();
 }
@@ -177,6 +185,14 @@ export const updateAnnouncementController: RequestHandler = async (
       where: { id },
       data: readFields(merged),
       include: announcementInclude,
+    }).catch((error: unknown) => {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2025"
+      ) {
+        throw new ApiError("Pengumuman tidak ditemukan.", 404);
+      }
+      throw error;
     });
     response.json({ announcement });
   } catch (error) {

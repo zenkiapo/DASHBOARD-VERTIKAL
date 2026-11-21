@@ -21,6 +21,7 @@ import { galleryItems, type GalleryItem } from "../data/galleryItems";
 
 interface WelcomePageProps {
   onOpenDashboard: () => void;
+  onOpenLogin: () => void;
   onOpenTeam: () => void;
   onOpenRtl: () => void;
   onOpenAnnouncement: () => void;
@@ -125,6 +126,7 @@ function GalleryMedia({
 
 export function WelcomePage({
   onOpenDashboard,
+  onOpenLogin,
   onOpenTeam,
   onOpenRtl,
   onOpenAnnouncement,
@@ -184,9 +186,14 @@ export function WelcomePage({
             <span>Tim Pengembang</span>
           </button>
         </nav>
-        <button className="welcome-nav-cta" onClick={onOpenDashboard} type="button">
-          <span>Buka dashboard</span><ArrowRight size={15} />
-        </button>
+        <div className="welcome-nav-actions">
+          <button className="welcome-login-link" onClick={onOpenLogin} type="button">
+            Masuk
+          </button>
+          <button className="welcome-nav-cta" onClick={onOpenDashboard} type="button">
+            <span>Buka dashboard</span><ArrowRight size={15} />
+          </button>
+        </div>
       </header>
 
       <section className="welcome-hero" id="beranda">

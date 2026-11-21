@@ -40,6 +40,7 @@ src/
     WelcomePage.tsx
     TeamPage.tsx
     AnnouncementPage.tsx
+    LoginPage.tsx
     ui/chart.tsx
     ChartCard.tsx
     Dashboard.tsx
@@ -83,10 +84,13 @@ perbandingan jenjang, serta tren.
 PDF juga menyertakan komparasi checkpoint yang sedang dipilih dan daftar RTL
 yang dapat diakses akun aktif.
 
-Login diperlukan untuk membuka data dashboard. Panel **Catatan Evaluasi &
-Tindak Lanjut** tersedia di baris tren dashboard setelah masuk.
-Panel menyediakan login biasa dan 1-Click Demo Login untuk akun SISWA, KEPSEK,
-GURU_BK, WALI_KELAS X-1, serta ADMIN. Akun SISWA dapat melihat dashboard
+Login tersedia langsung pada rute `/login`, dengan login kata sandi dan
+1-Click Demo Login untuk akun SISWA, KEPSEK, GURU_BK, WALI_KELAS X-1, serta
+ADMIN. Login dari dashboard atau pengumuman akan kembali ke halaman asal;
+login dari halaman publik mengarahkan ke dashboard. Halaman Welcome dan
+pengumuman publik tetap dapat dibaca tanpa login. Dashboard memerlukan sesi.
+Panel **Catatan Evaluasi & Tindak Lanjut** tersedia di baris tren dashboard
+setelah masuk. Akun SISWA dapat melihat dashboard
 agregat tanpa akses ekspor PDF atau catatan kebijakan. KEPSEK/ADMIN dapat
 membuat, mengedit, dan menghapus catatan; GURU_BK/ADMIN mengelola status dan
 catatan pendampingan; WALI_KELAS hanya melihat catatan sesuai lingkup kelas

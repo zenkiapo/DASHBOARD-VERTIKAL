@@ -88,6 +88,14 @@ const errorHandler: ErrorRequestHandler = (
   response: Response,
   _next,
 ) => {
+  if ("type" in error && error.type === "entity.parse.failed") {
+    response.status(400).json({ error: "Body harus berupa JSON yang valid." });
+    return;
+  }
+  if ("type" in error && error.type === "entity.too.large") {
+    response.status(413).json({ error: "Ukuran body permintaan melebihi batas." });
+    return;
+  }
   if (error instanceof ApiError) {
     response.status(error.statusCode).json({ error: error.message });
     return;
@@ -107,6 +115,16 @@ const errorHandler: ErrorRequestHandler = (
     error.code === "P2002"
   ) {
     response.status(409).json({ error: "Data dengan nilai tersebut sudah ada." });
+    return;
+  }
+  if (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    (error.code === "P2021" || error.code === "P2022")
+  ) {
+    console.error(`[database-schema] Prisma ${error.code}; apply pending migrations.`);
+    response.status(503).json({
+      error: "Skema database belum siap. Jalankan migrasi database sebelum menggunakan fitur ini.",
+    });
     return;
   }
   console.error("[api] Unexpected request error", error);

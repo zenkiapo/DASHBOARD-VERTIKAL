@@ -6,6 +6,7 @@ import {
   Clock3,
   FileDown,
   GraduationCap,
+  LogIn,
   LogOut,
   RefreshCw,
 } from "lucide-react";
@@ -46,11 +47,17 @@ function formatUpdatedAt(date: Date): string {
 
 interface DashboardProps {
   onBack: () => void;
+  onOpenLogin: () => void;
   onOpenRtl: () => void;
   onOpenAnnouncement: () => void;
 }
 
-export function Dashboard({ onBack, onOpenRtl, onOpenAnnouncement }: DashboardProps) {
+export function Dashboard({
+  onBack,
+  onOpenLogin,
+  onOpenRtl,
+  onOpenAnnouncement,
+}: DashboardProps) {
   const [filters, setFilters] = useState(emptyFilters);
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -264,6 +271,11 @@ export function Dashboard({ onBack, onOpenRtl, onOpenAnnouncement }: DashboardPr
           <button className="rtl-nav-button" onClick={onOpenAnnouncement} type="button">
             Pengumuman
           </button>
+          {!session && !authLoading && (
+            <button className="topbar-login-button" onClick={onOpenLogin} type="button">
+              <LogIn size={14} /> Masuk
+            </button>
+          )}
           {!isStudent && (
             <button
               className="export-button"
@@ -361,7 +373,7 @@ export function Dashboard({ onBack, onOpenRtl, onOpenAnnouncement }: DashboardPr
               </div>
             )}
             <div className="policy-login-entry">
-              <PolicyNotesPanel onSessionChange={changeSession} session={session} />
+              <PolicyNotesPanel onOpenLogin={onOpenLogin} session={session} />
             </div>
           </>
         )}
@@ -445,7 +457,7 @@ export function Dashboard({ onBack, onOpenRtl, onOpenAnnouncement }: DashboardPr
             <div className={`chart-grid chart-grid-trends${isStudent ? " chart-grid-student" : ""}`}>
               <HabitTrendLineChart data={summary.trends} />
               {!isStudent && (
-                <PolicyNotesPanel onSessionChange={changeSession} session={session} />
+                <PolicyNotesPanel onOpenLogin={onOpenLogin} session={session} />
               )}
             </div>
             {!isStudent && (
@@ -461,7 +473,7 @@ export function Dashboard({ onBack, onOpenRtl, onOpenAnnouncement }: DashboardPr
         ) : null}
         {session && session.user.role !== "SISWA" && !summary && (
           <div className="policy-notes-fallback">
-            <PolicyNotesPanel onSessionChange={changeSession} session={session} />
+            <PolicyNotesPanel onOpenLogin={onOpenLogin} session={session} />
           </div>
         )}
       </div>
