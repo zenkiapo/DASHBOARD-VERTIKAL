@@ -12,33 +12,17 @@ import {
   createPolicyNote,
   deletePolicyNote,
   fetchPolicyNotes,
-  loginAsDemo,
-  loginWithPassword,
   NOTE_STATUS_LABELS,
   updatePolicyContent,
   updatePolicyFollowUp,
 } from "../lib/policyNotesApi";
-import type {
-  AuthSession,
-  NoteStatus,
-  PolicyNoteContent,
-  PolicyNoteDTO,
-  UserRole,
-} from "../types/policyNotes";
+import type { AuthSession, NoteStatus, PolicyNoteContent, PolicyNoteDTO } from "../types/policyNotes";
 import { ChartCard } from "./ChartCard";
 
 interface PolicyNotesPanelProps {
   session: AuthSession | null;
-  onSessionChange: (session: AuthSession | null) => void;
+  onOpenLogin: () => void;
 }
-
-const demoRoles: Array<{ role: UserRole; label: string }> = [
-  { role: "SISWA", label: "Siswa" },
-  { role: "KEPSEK", label: "Kepala Sekolah" },
-  { role: "GURU_BK", label: "Guru BK" },
-  { role: "WALI_KELAS", label: "Wali Kelas X-1" },
-  { role: "ADMIN", label: "Admin" },
-];
 
 const habitOptions = [
   "Semua",
@@ -255,12 +239,10 @@ function PolicyNoteCard({
 
 export function PolicyNotesPanel({
   session,
-  onSessionChange,
+  onOpenLogin,
 }: PolicyNotesPanelProps) {
   const [notes, setNotes] = useState<PolicyNoteDTO[]>([]);
   const [draft, setDraft] = useState<PolicyNoteContent>(emptyDraft);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -289,32 +271,6 @@ export function PolicyNotesPanel({
       active = false;
     };
   }, [session]);
-
-  const signIn = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setSaving(true);
-    setError(null);
-    try {
-      onSessionChange(await loginWithPassword(email.trim(), password));
-      setPassword("");
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Login gagal.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const signInDemo = async (role: UserRole) => {
-    setSaving(true);
-    setError(null);
-    try {
-      onSessionChange(await loginAsDemo(role));
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Login demo gagal.");
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const createNote = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -423,49 +379,11 @@ export function PolicyNotesPanel({
         <>
           <p className="policy-login-intro">
             Masuk untuk mengakses catatan sesuai peran. Juri dapat mencoba akun demo
-            tanpa memasukkan kata sandi.
+            dari halaman login.
           </p>
-          <form className="policy-login-form" onSubmit={signIn}>
-            <label>
-              Email
-              <input
-                autoComplete="username"
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="nama@sekolah.sch.id"
-                required
-                type="email"
-                value={email}
-              />
-            </label>
-            <label>
-              Kata sandi
-              <input
-                autoComplete="current-password"
-                onChange={(event) => setPassword(event.target.value)}
-                required
-                type="password"
-                value={password}
-              />
-            </label>
-            <button className="policy-save-button" disabled={saving} type="submit">
-              <LogIn size={14} /> Masuk
-            </button>
-          </form>
-          <div className="policy-demo-section">
-            <span>1-Click Demo Login</span>
-            <div className="policy-demo-grid">
-              {demoRoles.map(({ role, label }) => (
-                <button
-                  disabled={saving}
-                  key={role}
-                  onClick={() => signInDemo(role)}
-                  type="button"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
+          <button className="policy-save-button" onClick={onOpenLogin} type="button">
+            <LogIn size={14} /> Buka halaman login
+          </button>
           {error && <p className="policy-error" role="alert">{error}</p>}
         </>
       )}

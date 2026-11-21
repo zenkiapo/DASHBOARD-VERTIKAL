@@ -20,8 +20,6 @@ import {
 } from "../lib/announcementsApi";
 import {
   fetchCurrentSession,
-  loginAsDemo,
-  loginWithPassword,
   logoutCurrentSession,
 } from "../lib/policyNotesApi";
 import type {
@@ -34,6 +32,7 @@ import type { AuthSession, UserRole } from "../types/policyNotes";
 interface AnnouncementPageProps {
   onBack: () => void;
   onOpenDashboard: () => void;
+  onOpenLogin: () => void;
   onOpenRtl: () => void;
   onOpenTeam: () => void;
 }
@@ -46,13 +45,6 @@ const habits = [
   "Gemar Belajar",
   "Bermasyarakat",
   "Tidur Cepat",
-];
-
-const managers: Array<{ role: UserRole; label: string }> = [
-  { role: "KEPSEK", label: "Kepala Sekolah" },
-  { role: "GURU_BK", label: "Guru BK" },
-  { role: "WALI_KELAS", label: "Wali Kelas X-1" },
-  { role: "ADMIN", label: "Admin" },
 ];
 
 const emptyDraft = (): AnnouncementDraft => ({
@@ -86,6 +78,7 @@ function dateLabel(announcement: AnnouncementDTO): string {
 export function AnnouncementPage({
   onBack,
   onOpenDashboard,
+  onOpenLogin,
   onOpenRtl,
   onOpenTeam,
 }: AnnouncementPageProps) {
@@ -96,8 +89,6 @@ export function AnnouncementPage({
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const canManage = isManager(session?.user.role);
 
@@ -132,32 +123,6 @@ export function AnnouncementPage({
       active = false;
     };
   }, [loadAnnouncements]);
-
-  const signIn = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setBusy(true);
-    setError(null);
-    try {
-      setSession(await loginWithPassword(email.trim(), password));
-      setPassword("");
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Login gagal.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const signInDemo = async (role: UserRole) => {
-    setBusy(true);
-    setError(null);
-    try {
-      setSession(await loginAsDemo(role));
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Login demo gagal.");
-    } finally {
-      setBusy(false);
-    }
-  };
 
   const signOut = async () => {
     setBusy(true);
@@ -282,19 +247,9 @@ export function AnnouncementPage({
               <div><span className="eyebrow">AKSES BERBASIS PERAN</span><h2>Masuk untuk mengelola</h2></div>
               <span className="announcement-read-badge">Baca tetap tersedia tanpa login</span>
             </div>
-            <form className="policy-login-form" onSubmit={signIn}>
-              <label>Email<input autoComplete="username" required type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></label>
-              <label>Kata sandi<input autoComplete="current-password" required type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></label>
-              <button className="policy-save-button" disabled={busy} type="submit"><LogIn size={14} /> Masuk</button>
-            </form>
-            <div className="policy-demo-section">
-              <span>Akun demo berwenang</span>
-              <div className="policy-demo-grid">
-                {managers.map(({ role, label }) => (
-                  <button disabled={busy} key={role} onClick={() => signInDemo(role)} type="button">{label}</button>
-                ))}
-              </div>
-            </div>
+            <button className="policy-save-button" onClick={onOpenLogin} type="button">
+              <LogIn size={14} /> Buka halaman login
+            </button>
           </section>
         )}
 
